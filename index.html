@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+  :root{--red:#cc0000;--black:#111111;--white:#ffffff;--gray:#f2f2f2;--mid:#e0e0e0;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--black);}
+
+  /* HERO */
+  .hero{background:var(--black);color:var(--white);padding:52px 40px 44px;position:relative;overflow:hidden;}
+  .hero::before{content:'∑ ∫ π √ ∞ θ';position:absolute;top:12px;right:30px;font-size:13px;letter-spacing:10px;opacity:0.08;font-family:'DM Serif Display',serif;}
+  .hero-label{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:14px;}
+  .hero h1{font-family:'DM Serif Display',serif;font-size:48px;line-height:1.1;margin-bottom:10px;}
+  .hero h1 em{font-style:italic;color:var(--red);}
+  .hero-sub{font-size:15px;font-weight:300;opacity:0.7;margin-top:8px;}
+
+  .page-body{max-width:900px;margin:0 auto;padding:44px 32px 60px;}
+
+  /* CONTACT */
+  .contact-strip{background:var(--white);border-radius:8px;padding:20px 28px;margin-bottom:40px;box-shadow:0 2px 10px rgba(0,0,0,0.05);display:flex;flex-wrap:wrap;gap:24px;align-items:center;}
+  .contact-item{display:flex;align-items:center;gap:10px;font-size:14px;}
+  .contact-item .icon{font-size:18px;}
+  .contact-item a{color:var(--black);font-weight:600;text-decoration:none;border-bottom:1px solid var(--red);}
+  .best-tag{background:var(--red);color:var(--white);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:1px;text-transform:uppercase;margin-left:6px;}
+
+  /* PROGRESS */
+  .section-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;margin-top:48px;}
+  .section-header h2{font-family:'DM Serif Display',serif;font-size:28px;white-space:nowrap;}
+  .section-header .bar{flex:1;height:2px;background:var(--red);opacity:0.3;}
+
+  .progress-card{background:var(--white);border-radius:8px;padding:28px;box-shadow:0 2px 10px rgba(0,0,0,0.05);margin-bottom:40px;}
+  .progress-card h3{font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:20px;}
+  .overall-bar-wrap{height:10px;background:var(--mid);border-radius:5px;margin-bottom:8px;}
+  .overall-bar-fill{height:100%;background:var(--red);border-radius:5px;transition:width 0.5s ease;}
+  .overall-label{font-size:13px;color:#888;margin-bottom:20px;}
+  .chapter-progress-list{display:flex;flex-direction:column;gap:12px;}
+  .cp-row{display:flex;align-items:center;gap:12px;}
+  .cp-name{font-size:13px;font-weight:500;min-width:130px;}
+  .cp-bar-wrap{flex:1;height:6px;background:var(--mid);border-radius:3px;}
+  .cp-bar-fill{height:100%;background:var(--red);border-radius:3px;transition:width 0.5s;}
+  .cp-score{font-size:12px;color:#888;min-width:50px;text-align:right;}
+  .cp-badge{font-size:14px;width:22px;text-align:center;}
+
+  /* CHAPTERS */
+  .chapters-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:40px;}
+  .chapter-card{background:var(--white);border-radius:8px;padding:24px;box-shadow:0 2px 10px rgba(0,0,0,0.05);text-decoration:none;color:var(--black);display:block;border-left:4px solid var(--mid);transition:all 0.2s;position:relative;}
+  .chapter-card:hover{border-left-color:var(--red);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.1);}
+  .chapter-card.unlocked{border-left-color:var(--red);}
+  .chapter-card .ch-num{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:6px;}
+  .chapter-card h4{font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:8px;}
+  .chapter-card .ch-topics{font-size:12px;color:#888;font-weight:300;line-height:1.5;}
+  .chapter-card .ch-status{position:absolute;top:20px;right:20px;font-size:18px;}
+  .chapter-card .ch-score-bar{height:3px;background:var(--mid);border-radius:2px;margin-top:14px;}
+  .chapter-card .ch-score-fill{height:100%;background:var(--red);border-radius:2px;transition:width 0.5s;}
+
+  /* QUICK TIPS */
+  .tips-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:40px;}
+  .tip-card{background:var(--white);border-radius:8px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,0.05);border-top:3px solid var(--red);}
+  .tip-card .tip-icon{font-size:24px;margin-bottom:10px;}
+  .tip-card h5{font-family:'DM Serif Display',serif;font-size:15px;margin-bottom:8px;}
+  .tip-card p{font-size:12px;color:#666;line-height:1.6;font-weight:300;}
+
+  .footer-note{text-align:center;font-size:12px;color:#aaa;margin-top:48px;font-weight:300;letter-spacing:1px;}
+
+  @media(max-width:640px){.chapters-grid,.tips-grid{grid-template-columns:1fr;}.hero h1{font-size:34px;}.contact-strip{flex-direction:column;gap:12px;}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-label">Snohomish High School · 2025–26</div>
+  <h1>Welcome to<br><em>Math 3</em></h1>
+  <p class="hero-sub">Mr. Solbakken &nbsp;·&nbsp; Your complete course — notes, quizzes, and games for every chapter</p>
+</div>
+
+<div class="page-body">
+
+  <!-- CONTACT -->
+  <div class="contact-strip">
+    <div class="contact-item"><span class="icon">👤</span><strong>Mr. Eric Solbakken</strong></div>
+    <div class="contact-item"><span class="icon">✉️</span><a href="/cdn-cgi/l/email-protection#b6f3c4dfd598e5d9dad4d7ddddd3d8f6c5d8d998c1d3d2d8d3c298d3d2c3"><span class="__cf_email__" data-cfemail="b4f1c6ddd79ae7dbd8d6d5dfdfd1daf4c7dadb9ac3d1d0dad1c09ad1d0c1">[email&#160;protected]</span></a><span class="best-tag">Best</span></div>
+    <div class="contact-item"><span class="icon">📞</span>Extension <strong>4166</strong></div>
+  </div>
+
+  <!-- PROGRESS TRACKER -->
+  <div class="section-header"><h2>Your Progress</h2><div class="bar"></div></div>
+  <div class="progress-card">
+    <h3>Course Overview</h3>
+    <div class="overall-bar-wrap"><div class="overall-bar-fill" id="overallBar" style="width:0%"></div></div>
+    <div class="overall-label" id="overallLabel">Complete quizzes to track your progress!</div>
+    <div class="chapter-progress-list" id="progressList"></div>
+  </div>
+
+  <!-- CHAPTERS -->
+  <div class="section-header"><h2>Course Chapters</h2><div class="bar"></div></div>
+  <div class="chapters-grid">
+
+    <a class="chapter-card unlocked" href="ch1_page.html">
+      <div class="ch-status" id="status1">📖</div>
+      <div class="ch-num">Chapter 1</div>
+      <h4>Algebra Foundations</h4>
+      <div class="ch-topics">Expressions · Exponents · Square Roots · Properties · Absolute Value · Equations</div>
+      <div class="ch-score-bar"><div class="ch-score-fill" id="bar1" style="width:0%"></div></div>
+    </a>
+
+    <a class="chapter-card unlocked" href="ch2_page.html">
+      <div class="ch-status" id="status2">📖</div>
+      <div class="ch-num">Chapter 2</div>
+      <h4>Solving Equations</h4>
+      <div class="ch-topics">One-Step · Two-Step · Multi-Step · Both Sides · Proportions · Similar Figures</div>
+      <div class="ch-score-bar"><div class="ch-score-fill" id="bar2" style="width:0%"></div></div>
+    </a>
+
+    <a class="chapter-card unlocked" href="ch3_page.html">
+      <div class="ch-status" id="status3">📖</div>
+      <div class="ch-num">Chapter 3</div>
+      <h4>Inequalities</h4>
+      <div class="ch-topics">Writing · Graphing · Add/Subtract · Multiply/Divide · Multi-Step · Compound · Absolute Value</div>
+      <div class="ch-score-bar"><div class="ch-score-fill" id="bar3" style="width:0%"></div></div>
+    </a>
+
+    <a class="chapter-card unlocked" href="ch4_page.html">
+      <div class="ch-status" id="status4">📖</div>
+      <div class="ch-num">Chapter 4</div>
+      <h4>Graphs &amp; Functions</h4>
+      <div class="ch-topics">Reading Graphs · Linear Tables · Linear vs Non-Linear · Graphing Equations · Domain &amp; Range · Functions</div>
+      <div class="ch-score-bar"><div class="ch-score-fill" id="bar4" style="width:0%"></div></div>
+    </a>
+
+    <a class="chapter-card unlocked" href="ch5_page.html">
+      <div class="ch-status" id="status5">📖</div>
+      <div class="ch-num">Chapter 5</div>
+      <h4>Linear Equations</h4>
+      <div class="ch-topics">Slope · Slope-Intercept · Point-Slope · Standard Form · Parallel &amp; Perpendicular</div>
+      <div class="ch-score-bar"><div class="ch-score-fill" id="bar5" style="width:0%"></div></div>
+    </a>
+
+    <a class="chapter-card unlocked" href="ch6_page.html">
+      <div class="ch-status" id="status6">📖</div>
+      <div class="ch-num">Chapter 6</div>
+      <h4>Systems of Equations</h4>
+      <div class="ch-topics">Graphing · Substitution · Elimination · Linear Inequalities · Systems of Inequalities</div>
+      <div class="ch-score-bar"><div class="ch-score-fill" id="bar6" style="width:0%"></div></div>
+    </a>
+
+    <a class="chapter-card unlocked" href="ch7_page.html">
+      <div class="ch-status" id="status7">📖</div>
+      <div class="ch-num">Chapter 7</div>
+      <h4>Exponents</h4>
+      <div class="ch-topics">Zero Power · Negative Exponents · Multiply Powers · Power of a Power · Dividing Powers</div>
+      <div class="ch-score-bar"><div class="ch-score-fill" id="bar7" style="width:0%"></div></div>
+    </a>
+
+  </div>
+
+  <!-- QUICK TIPS -->
+  <div class="section-header"><h2>Quick Math Tips</h2><div class="bar"></div></div>
+  <div class="tips-grid">
+    <div class="tip-card">
+      <div class="tip-icon">🐊</div>
+      <h5>Inequality Trick</h5>
+      <p>The alligator always eats the BIGGER number. The open mouth (&lt; or &gt;) faces the bigger side.</p>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">🚂</div>
+      <h5>Parallel Lines</h5>
+      <p>Think train tracks — parallel lines have the SAME slope but different y-intercepts. They never cross!</p>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">📐</div>
+      <h5>PEMDAS Order</h5>
+      <p>Parentheses → Exponents → Multiply/Divide (left to right) → Add/Subtract (left to right)</p>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">⚡</div>
+      <h5>Flip the Sign!</h5>
+      <p>Dividing or multiplying by a NEGATIVE number in an inequality? Always flip the inequality sign!</p>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">🎯</div>
+      <h5>Slope Formula</h5>
+      <p>m = (y₂ − y₁) ÷ (x₂ − x₁). Rise over run. Only 1 negative sign in your answer = negative slope.</p>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">💡</div>
+      <h5>Negative Exponents</h5>
+      <p>Can't have negative exponents! FLIP the base from top to bottom (or bottom to top) to make it positive.</p>
+    </div>
+  </div>
+
+  <p class="footer-note">Snohomish Panthers &nbsp;·&nbsp; Math 3 &nbsp;·&nbsp; Mr. Solbakken &nbsp;·&nbsp; 2025–26</p>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// Progress tracking using localStorage
+const chapters = [
+  {id:1, name:'Ch 1: Algebra'},
+  {id:2, name:'Ch 2: Equations'},
+  {id:3, name:'Ch 3: Inequalities'},
+  {id:4, name:'Ch 4: Functions'},
+  {id:5, name:'Ch 5: Linear Eq.'},
+  {id:6, name:'Ch 6: Systems'},
+  {id:7, name:'Ch 7: Exponents'},
+];
+
+function getScore(chId){
+  try{const s=localStorage.getItem('math3_ch'+chId);return s?JSON.parse(s):{score:0,total:15,done:false};}
+  catch(e){return{score:0,total:15,done:false};}
+}
+
+function renderProgress(){
+  const list=document.getElementById('progressList');
+  list.innerHTML='';
+  let totalPct=0;
+  chapters.forEach(ch=>{
+    const data=getScore(ch.id);
+    const pct=Math.round((data.score/data.total)*100);
+    totalPct+=pct;
+    const emoji=pct>=90?'🏆':pct>=70?'💪':pct>0?'📝':'○';
+    // Update chapter cards
+    const bar=document.getElementById('bar'+ch.id);
+    const status=document.getElementById('status'+ch.id);
+    if(bar)bar.style.width=pct+'%';
+    if(status)status.textContent=pct>=90?'🏆':pct>=70?'💪':pct>0?'📝':'📖';
+    // Progress list row
+    const row=document.createElement('div');
+    row.className='cp-row';
+    row.innerHTML=`<span class="cp-badge">${emoji}</span><span class="cp-name">${ch.name}</span><div class="cp-bar-wrap"><div class="cp-bar-fill" style="width:${pct}%"></div></div><span class="cp-score">${data.done?data.score+'/'+data.total:'—'}</span>`;
+    list.appendChild(row);
+  });
+  const avg=Math.round(totalPct/chapters.length);
+  document.ge

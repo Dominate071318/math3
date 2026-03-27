@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+  :root{--red:#cc0000;--black:#111111;--white:#ffffff;--gray:#f2f2f2;--mid:#e0e0e0;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--black);}
+  .hero{background:var(--black);color:var(--white);padding:52px 40px 44px;position:relative;overflow:hidden;}
+  .hero::before{content:'∑ ∫ π √ ∞ θ';position:absolute;top:12px;right:30px;font-size:13px;letter-spacing:10px;opacity:0.08;font-family:'DM Serif Display',serif;}
+  .hero-label{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:14px;}
+  .hero h1{font-family:'DM Serif Display',serif;font-size:48px;line-height:1.1;margin-bottom:10px;}
+  .hero h1 em{font-style:italic;color:var(--red);}
+  .hero-sub{font-size:15px;font-weight:300;opacity:0.7;margin-top:8px;}
+  .page-body{max-width:900px;margin:0 auto;padding:44px 32px 60px;}
+  .back-link{display:inline-flex;align-items:center;gap:8px;color:var(--red);font-size:13px;font-weight:600;text-decoration:none;margin-bottom:32px;letter-spacing:1px;text-transform:uppercase;}
+  .section-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;margin-top:48px;}
+  .section-header h2{font-family:'DM Serif Display',serif;font-size:28px;white-space:nowrap;}
+  .section-header .bar{flex:1;height:2px;background:var(--red);opacity:0.3;}
+  .notes-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:40px;}
+  .note-card{background:var(--white);border-radius:8px;border-top:3px solid var(--red);padding:22px 24px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
+  .note-card.full{grid-column:1/-1;}
+  .note-card .section-num{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:6px;}
+  .note-card h4{font-family:'DM Serif Display',serif;font-size:17px;margin-bottom:12px;}
+  .note-card .concept{font-size:13px;color:#555;line-height:1.6;font-weight:300;margin-bottom:10px;}
+  .formula-box{background:var(--black);color:var(--white);border-radius:6px;padding:10px 14px;font-size:14px;font-weight:500;text-align:center;margin-top:10px;font-family:'DM Serif Display',serif;}
+  .key-points{margin-top:12px;}
+  .key-points li{font-size:13px;color:#444;margin-bottom:6px;padding-left:16px;position:relative;list-style:none;font-weight:300;}
+  .key-points li::before{content:'→';position:absolute;left:0;color:var(--red);font-size:12px;}
+  .steps-box{background:var(--gray);border-radius:6px;padding:14px 16px;margin-top:12px;}
+  .steps-box .step{font-size:13px;color:#333;margin-bottom:6px;font-weight:400;}
+  .steps-box .step span{display:inline-block;width:20px;height:20px;background:var(--red);color:var(--white);border-radius:50%;font-size:11px;font-weight:700;text-align:center;line-height:20px;margin-right:8px;}
+
+  /* QUIZ */
+  .quiz-container{background:var(--white);border-radius:8px;padding:36px;margin-bottom:40px;box-shadow:0 2px 12px rgba(0,0,0,0.05);}
+  .quiz-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+  .quiz-header h3{font-family:'DM Serif Display',serif;font-size:22px;}
+  .quiz-progress{font-size:13px;color:#888;font-weight:500;}
+  .progress-bar-wrap{height:4px;background:var(--mid);border-radius:2px;margin-bottom:28px;}
+  .progress-bar-fill{height:100%;background:var(--red);border-radius:2px;transition:width 0.4s;}
+  .question-block{display:none;}.question-block.active{display:block;}
+  .question-type-label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:8px;}
+  .question-text{font-size:16px;font-weight:500;margin-bottom:20px;line-height:1.5;}
+  .choices{display:flex;flex-direction:column;gap:10px;}
+  .choice-btn{background:var(--gray);border:2px solid transparent;border-radius:6px;padding:14px 18px;text-align:left;cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;transition:all 0.15s;color:var(--black);}
+  .choice-btn:hover{border-color:var(--black);background:var(--white);}
+  .choice-btn.correct{background:#e8f5e9;border-color:#2e7d32;color:#1b5e20;}
+  .choice-btn.wrong{background:#ffebee;border-color:var(--red);color:#b71c1c;}
+  .choice-btn:disabled{cursor:default;}
+  .tf-row{display:flex;gap:12px;}
+  .tf-btn{flex:1;padding:16px;border-radius:6px;border:2px solid transparent;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--black);transition:all 0.15s;}
+  .tf-btn:hover{border-color:var(--black);}
+  .tf-btn.correct{background:#e8f5e9;border-color:#2e7d32;color:#1b5e20;}
+  .tf-btn.wrong{background:#ffebee;border-color:var(--red);color:#b71c1c;}
+  .tf-btn:disabled{cursor:default;}
+  .fill-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .fill-input{flex:1;min-width:120px;padding:12px 16px;border:2px solid var(--mid);border-radius:6px;font-size:16px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.15s;}
+  .fill-input:focus{border-color:var(--black);}
+  .fill-input.correct{border-color:#2e7d32;background:#e8f5e9;}
+  .fill-input.wrong{border-color:var(--red);background:#ffebee;}
+  .submit-btn{background:var(--black);color:var(--white);border:none;border-radius:6px;padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;}
+  .submit-btn:hover{background:var(--red);}
+  .feedback-msg{margin-top:14px;font-size:14px;font-weight:500;padding:10px 14px;border-radius:6px;display:none;}
+  .feedback-msg.show{display:block;}
+  .feedback-msg.good{background:#e8f5e9;color:#1b5e20;}
+  .feedback-msg.bad{background:#ffebee;color:#b71c1c;}
+  .quiz-nav{display:flex;justify-content:space-between;align-items:center;margin-top:28px;flex-wrap:wrap;gap:12px;}
+  .nav-btn{background:var(--black);color:var(--white);border:none;border-radius:6px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;}
+  .nav-btn:hover{background:var(--red);}
+  .nav-btn:disabled{opacity:0.3;cursor:default;background:var(--black);}
+  .score-display{font-size:14px;font-weight:600;color:#555;}
+  .quiz-results{display:none;text-align:center;padding:20px 0;}
+  .quiz-results.show{display:block;}
+  .result-score{font-family:'DM Serif Display',serif;font-size:64px;color:var(--red);line-height:1;margin-bottom:8px;}
+  .result-label{font-size:16px;color:#555;margin-bottom:16px;}
+  .result-msg{font-size:15px;color:var(--black);font-weight:500;margin-bottom:24px;}
+  .restart-btn{background:var(--red);color:var(--white);border:none;border-radius:6px;padding:14px 32px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+
+  /* GAME */
+  .game-container{background:var(--black);border-radius:8px;padding:36px;margin-bottom:40px;box-shadow:0 4px 20px rgba(0,0,0,0.15);}
+  .game-container h3{font-family:'DM Serif Display',serif;font-size:22px;color:var(--white);margin-bottom:6px;}
+  .game-subtitle{font-size:13px;color:#aaa;margin-bottom:24px;}
+  .game-stats{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
+  .stat-box{background:rgba(255,255,255,0.07);border-radius:6px;padding:12px 20px;text-align:center;min-width:75px;}
+  .stat-num{font-size:24px;font-weight:700;color:var(--red);line-height:1;}
+  .stat-label{font-size:10px;color:#aaa;margin-top:4px;letter-spacing:1px;text-transform:uppercase;}
+  .timer-bar-wrap{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin-bottom:16px;}
+  .timer-bar{height:100%;background:var(--red);border-radius:2px;transition:width 0.1s linear;}
+  .game-board{background:rgba(255,255,255,0.05);border-radius:8px;padding:24px;margin-bottom:16px;min-height:120px;}
+  .game-question{font-size:17px;color:var(--white);font-weight:500;margin-bottom:20px;line-height:1.5;}
+  .game-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .game-choice{background:rgba(255,255,255,0.1);border:2px solid transparent;border-radius:6px;padding:14px;color:var(--white);font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;text-align:center;}
+  .game-choice:hover{border-color:var(--red);background:rgba(204,0,0,0.2);}
+  .game-choice.correct{background:rgba(46,125,50,0.3);border-color:#4caf50;}
+  .game-choice.wrong{background:rgba(204,0,0,0.3);border-color:var(--red);}
+  .game-choice:disabled{cursor:default;}
+  .game-feedback{font-size:14px;color:var(--white);padding:10px 14px;border-radius:6px;display:none;margin-bottom:12px;}
+  .game-feedback.show{display:block;}
+  .game-feedback.good{background:rgba(46,125,50,0.3);}
+  .game-feedback.bad{background:rgba(204,0,0,0.3);}
+  .level-badge{display:inline-block;background:var(--red);color:var(--white);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:12px;margin-left:8px;}
+  .game-over-panel{display:none;text-align:center;padding:20px;}
+  .game-over-panel.show{display:block;}
+  .game-over-score{font-family:'DM Serif Display',serif;font-size:56px;color:var(--red);}
+  .game-over-msg{color:#ccc;font-size:15px;margin:12px 0 24px;}
+  .play-again-btn{background:var(--red);color:var(--white);border:none;border-radius:6px;padding:14px 32px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+  .footer-note{text-align:center;font-size:12px;color:#aaa;margin-top:48px;font-weight:300;letter-spacing:1px;}
+  @media(max-width:640px){.notes-grid,.game-choices{grid-template-columns:1fr;}.hero h1{font-size:34px;}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-label">Snohomish High School · Math 3</div>
+  <h1><em>Chapter 2</em><br>Solving Equations</h1>
+  <p class="hero-sub">Mr. Solbakken &nbsp;·&nbsp; 2025–26</p>
+</div>
+
+<div class="page-body">
+  <a class="back-link" href="index.html">← Back to Course Home</a>
+
+  <div class="section-header"><h2>Chapter 2 Notes</h2><div class="bar"></div></div>
+  <div class="notes-grid">
+
+    <div class="note-card">
+      <div class="section-num">Section 2-1</div>
+      <h4>One-Step Equations</h4>
+      <p class="concept">Get the variable by itself. Whatever you do to one side of the = sign, you MUST do to the other side.</p>
+      <div class="steps-box">
+        <div class="step"><span>1</span>Leave the variable in place</div>
+        <div class="step"><span>2</span>Move everything else away from it (do the opposite operation)</div>
+        <div class="step"><span>3</span>Do the same to BOTH sides</div>
+      </div>
+      <ul class="key-points">
+        <li>x + 4 = −6 → subtract 4 from both sides → x = −10</li>
+        <li>x − 11 = 19 → add 11 to both sides → x = 30</li>
+        <li>4x = 20 → divide both sides by 4 → x = 5</li>
+        <li>x/3 = 7 → multiply both sides by 3 → x = 21</li>
+        <li>Combine like terms FIRST if needed</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 2-2</div>
+      <h4>Two-Step Equations</h4>
+      <p class="concept">Get the variable by itself. Move the number attached to the variable LAST.</p>
+      <div class="steps-box">
+        <div class="step"><span>1</span>Move the constant (number alone) first — do the opposite</div>
+        <div class="step"><span>2</span>Move what is attached to the variable last (divide or multiply)</div>
+        <div class="step"><span>3</span>Work DOWN rather than across</div>
+      </div>
+      <ul class="key-points">
+        <li>2x + 3 = 15 → subtract 3 → 2x=12 → divide by 2 → x=6</li>
+        <li>5x + 1 = 16 → subtract 1 → 5x=15 → divide by 5 → x=5</li>
+        <li>x/8 − 4 = 2 → add 4 → x/8=6 → multiply by 8 → x=48</li>
+        <li>(x−7)/3 = −12 → multiply by 3 → x−7=−36 → add 7 → x=−29</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 2-3</div>
+      <h4>Multi-Step Equations</h4>
+      <p class="concept">Combine like terms first, then solve like a two-step equation.</p>
+      <div class="steps-box">
+        <div class="step"><span>1</span>Combine like terms (CLT)</div>
+        <div class="step"><span>2</span>Get variable by itself</div>
+        <div class="step"><span>3</span>Move what is attached to the variable last</div>
+      </div>
+      <ul class="key-points">
+        <li>−2x + 5 + 5x = 14 → 3x + 5 = 14 → 3x = 9 → x = 3</li>
+        <li>11y − 8 − 6y = 22 → 5y − 8 = 22 → 5y = 30 → y = 6</li>
+        <li>−8(2x−1) = 36 → distribute first → −16x + 8 = 36 → x = −1.75</li>
+        <li>4(x−2) + 6 = 0 → distribute → 4x − 2 = 0 → x = 0.5</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 2-4</div>
+      <h4>Variables on Both Sides</h4>
+      <p class="concept">Move all variables to one side, all numbers to the other. Either side works — pick the easier one!</p>
+      <ul class="key-points">
+        <li>5x + 2 = 2x + 14 → subtract 2x → 3x + 2 = 14 → 3x = 12 → x = 4</li>
+        <li>7y + 2 = 4y − 10 → subtract 4y → 3y + 2 = −10 → 3y = −12 → y = −4</li>
+        <li>2(5x−1) = 3(x+11) → distribute both sides first!</li>
+        <li>→ 10x − 2 = 3x + 33 → 7x = 35 → x = 5</li>
+        <li>On same side of = sign: just combine, don't change the sign</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 2-5</div>
+      <h4>Solving for a Variable (Given Values)</h4>
+      <p class="concept">When given a value for one variable, plug it in and solve for the other.</p>
+      <ul class="key-points">
+        <li>10x + 5y = 80, find y when x = 3:</li>
+        <li>→ 10(3) + 5y = 80 → 30 + 5y = 80 → 5y = 50 → y = 10</li>
+        <li>When x = 6: 10(6) + 5y = 80 → 60 + 5y = 80 → y = 4</li>
+        <li>4x = 3y − 5, find y when x = 4,5,6 → plug in each x value separately</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 2-6</div>
+      <h4>Unit Rate & Ratios</h4>
+      <p class="concept">Unit rate = how much for ONE unit. Use division.</p>
+      <div class="formula-box">Unit Rate = Total ÷ Number of Units</div>
+      <ul class="key-points">
+        <li>$6 for 5 apples → $6 ÷ 5 = $1.20 per apple</li>
+        <li>Gas mileage: miles per gallon</li>
+        <li>Wages: dollars per hour</li>
+        <li>Ratios use division — set up as a fraction</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 2-7</div>
+      <h4>Solving Proportions</h4>
+      <p class="concept">Two equal ratios. Cross multiply, then divide.</p>
+      <div class="formula-box">a/b = c/d → a·d = b·c</div>
+      <div class="steps-box">
+        <div class="step"><span>1</span>Cross multiply (diagonal × diagonal)</div>
+        <div class="step"><span>2</span>Divide to solve for x</div>
+      </div>
+      <ul class="key-points">
+        <li>7/8 = x/12 → 8x = 84 → x = 10.5</li>
+        <li>x/7 = 4/5 → 5x = 28 → x = 5.6</li>
+        <li>4/3 = 14/y → 4y = 42 → y = 10.5</li>
+        <li>With algebra in numerator: cross multiply first, then distribute</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 2-8</div>
+      <h4>Proportions & Similar Figures</h4>
+      <p class="concept">~ means SIMILAR (same shape, not same size). Similar figures have proportional sides and equal angles.</p>
+      <ul class="key-points">
+        <li>△ABC ~ △DEF means ∠B~∠E, ∠A~∠D, ∠C~∠F</li>
+        <li>Corresponding sides are proportional: AB/BC = DE/EF</li>
+        <li>Set up a proportion, cross multiply, divide</li>
+        <li>Make sure similar sides are in the SAME spot of each fraction!</li>
+        <li>Example: 16/y = 18/12 → 18y = 192 → y = 24 &nbsp;|&nbsp; 18/x = 24/10 → x = 7.5</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- QUIZ -->
+  <div class="section-header"><h2>Chapter 2 Practice Quiz</h2><div class="bar"></div></div>
+  <div class="quiz-container">
+    <div class="quiz-header">
+      <h3>15-Question Check</h3>
+      <div class="quiz-progress" id="qProgress">Question 1 of 15</div>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="qBar" style="width:6.67%"></div></div>
+
+    <div id="quizMain">
+      <div class="question-block active" id="q1">
+        <div class="question-type-label">Fill in the Answer</div>
+        <div class="question-text">Solve: x + 4 = −6. What is x?</div>
+        <div class="fill-row"><input class="fill-input" id="fi1" placeholder="x = ?"/><button class="submit-btn" onclick="checkFill('fi1',['-10','−10'],1)">Check</button></div>
+        <div class="feedback-msg" id="fb1"></div>
+      </div>
+
+      <div class="question-block" id="q2">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">Solve: 4x = 20. What is x?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',2)">A) 80</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',2)">B) 16</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',2)">C) 5</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',2)">D) 24</button>
+        </div>
+        <div class="feedback-msg" id="fb2"></div>
+      </div>
+
+      <div class="question-block" id="q3">
+        <div class="question-type-label">True / False</div>
+        <div class="question-text">When solving equations, you must do the same operation to BOTH sides.</div>
+        <div class="tf-row">
+          <button class="tf-btn true-btn" onclick="checkTF(this,true,3)">True</button>
+          <button class="tf-btn false-btn" onclick="checkTF(this,false,3)">False</button>
+        </div>
+        <div class="feedback-msg" id="fb3"></div>
+      </div>
+
+      <div class="question-block" id="q4">
+        <div class="question-type-label">Fill in the Answer</div>
+        <div class="question-text">Solve: 2x + 3 = 15. What is x?</div>
+        <div class="fill-row"><input class="fill-input" id="fi4" placeholder="x = ?"/><button class="submit-btn" onclick="checkFill('fi4',['6'],4)">Check</button></div>
+        <div class="feedback-msg" id="fb4"></div>
+      </div>
+
+      <div class="question-block" id="q5">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">In a two-step equation like 3x + 5 = 20, what do you move FIRST?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',5)">A) The 3 (coefficient)</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',5)">B) The 5 (constant)</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',5)">C) The x</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',5)">D) The 20</button>
+        </div>
+        <div class="feedback-msg" id="fb5"></div>
+      </div>
+
+      <div class="question-block" id="q6">
+        <div class="question-type-label">Fill in the Answer</div>
+        <div class="question-text">Solve: −2x + 5 + 5x = 14. What is x?</div>
+        <div class="fill-row"><input class="fill-input" id="fi6" placeholder="x = ?"/><button class="submit-btn" onclick="checkFill('fi6',['3'],6)">Check</button></div>
+        <div class="feedback-msg" id="fb6"></div>
+      </div>
+
+      <div class="question-block" id="q7">
+        <div class="question-type-label">True / False</div>
+        <div class="question-text">When solving a multi-step equation, you should combine like terms BEFORE moving terms to the other side.</div>
+        <div class="tf-row">
+          <button class="tf-btn true-btn" onclick="checkTF(this,true,7)">True</button>
+          <button class="tf-btn false-btn" onclick="checkTF(this,false,7)">False</button>
+        </div>
+        <div class="feedback-msg" id="fb7"></div>
+      </div>
+
+      <div class="question-block" id="q8">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">Solve: 5x + 2 = 2x + 14. What is x?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',8)">A) 2</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',8)">B) 4</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',8)">C) 6</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',8)">D) 8</button>
+        </div>
+        <div class="feedback-msg" id="fb8"></div>
+      </div>
+
+      <div class="question-block" id="q9">
+        <div class="question-type-label">True / False</div>
+        <div class="question-text">Unit rate always involves dividing to find the cost or amount for ONE unit.</div>
+        <div class="tf-row">
+          <button class="tf-btn true-btn" onclick="checkTF(this,true,9)">True</button>
+          <button class="tf-btn false-btn" onclick="checkTF(this,false,9)">False</button>
+        </div>
+        <div class="feedback-msg" id="fb9"></div>
+      </div>
+
+      <div class="question-block" id="q10">
+        <div class="question-type-label">Fill in the Answer</div>
+        <div class="question-text">$6 for 5 apples. What is the unit rate per apple? (Enter as a decimal)</div>
+        <div class="fill-row"><input class="fill-input" id="fi10" placeholder="$ per apple"/><button class="submit-btn" onclick="checkFill('fi10',['1.20','1.2','$1.20'],10)">Check</button></div>
+        <div class="feedback-msg" id="fb10"></div>
+      </div>
+
+      <div class="question-block" id="q11">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">To solve a proportion, what is the first step?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',11)">A) Add the fractions</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',11)">B) Cross multiply</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',11)">C) Find common denominator</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',11)">D) Subtract the numerators</button>
+        </div>
+        <div class="feedback-msg" id="fb11"></div>
+      </div>
+
+      <div class="question-block" id="q12">
+        <div class="question-type-label">Fill in the Answer</div>
+        <div class="question-text">Solve the proportion: 7/8 = x/12. What is x?</div>
+        <div class="fill-row"><input class="fill-input" id="fi12" placeholder="x = ?"/><button class="submit-btn" onclick="checkFill('fi12',['10.5','10½'],12)">Check</button></div>
+        <div class="feedback-msg" id="fb12"></div>
+      </div>
+
+      <div class="question-block" id="q13">
+        <div class="question-type-label">True / False</div>
+        <div class="question-text">Similar figures (~) are the exact same size as each other.</div>
+        <div class="tf-row">
+          <button class="tf-btn true-btn" onclick="checkTF(this,false,13)">True</button>
+          <button class="tf-btn false-btn" onclick="checkTF(this,true,13)">False</button>
+        </div>
+        <div class="feedback-msg" id="fb13"></div>
+      </div>
+
+      <div class="question-block" id="q14">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">Solve: −8(2x − 1) = 36. What is x?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',14)">A) x = 1.75</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',14)">B) x = −1.75</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',14)">C) x = 4</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',14)">D) x = −4</button>
+        </div>
+        <div class="feedback-msg" id="fb14"></div>
+      </div>
+
+      <div class="question-block" id="q15">
+        <div class="question-type-label">Fill in the Answer</div>
+        <div class="question-text">Solve: 10y − 12 = 8y + 24. What is y?</div>
+        <div class="fill-row"><input class="fill-input" id="fi15" placeholder="y = ?"/><button class="submit-btn" onclick="checkFill('fi15',['18'],15)">Check</button></div>
+        <div class="feedback-msg" id="fb15"></div>
+      </div>
+    </div>
+
+    <div class="quiz-results" id="quizResults">
+      <div class="result-score" id="finalScore"></div>
+      <div class="result-label">out of 15</div>
+      <div class="result-msg" id="resultMsg"></div>
+      <button class="restart-btn" onclick="restartQuiz()">Try Again</button>
+    </div>
+    <div class="quiz-nav" id="quizNav">
+      <button class="nav-btn" id="prevBtn" onclick="navQuiz(-1)" disabled>← Prev</button>
+      <div class="score-display" id="scoreTally">Score: 0</div>
+      <button class="nav-btn" id="nextBtn" onclick="navQuiz(1)">Next →</button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div class="section-header"><h2>Equation Blitz 🎮</h2><div class="bar"></div></div>
+  <div class="game-container">
+    <h3>Chapter 2 Sprint <span class="level-badge" id="levelBadge">Level 1</span></h3>
+    <p class="game-subtitle">10 seconds per question. Build your streak for bonus points! 20 questions total.</p>
+    <div class="game-stats">
+      <div class="stat-box"><div class="stat-num" id="gScore">0</div><div class="stat-label">Score</div></div>
+      <div class="stat-box"><div class="stat-num" id="gStreak">0</div><div class="stat-label">🔥 Streak</div></div>
+      <div class="stat-box"><div class="stat-num" id="gCorrect">0</div><div class="stat-label">Correct</div></div>
+      <div class="stat-box"><div class="stat-num" id="gQ">0</div><div class="stat-label">Done</div></div>
+    </div>
+    <div class="timer-bar-wrap"><div class="timer-bar" id="timerBar" style="width:100%"></div></div>
+    <div class="game-board" id="gameBoard">
+      <div style="text-align:center;padding:20px 0;">
+        <p style="color:#ccc;font-size:15px;margin-bottom:20px;">Test your equation skills against the clock!</p>
+        <button class="play-again-btn" onclick="startGame()" style="font-size:16px;padding:16px 40px;">Start Game 🚀</button>
+      </div>
+    </div>
+    <div class="game-feedback" id="gameFeedback"></div>
+    <div class="game-over-panel" id="gameOverPanel">
+      <div class="game-over-score" id="goScore"></div>
+      <div class="game-over-msg" id="goMsg"></div>
+      <button class="play-again-btn" onclick="startGame()">Play Again 🔄</button>
+    </div>
+  </div>
+
+  <p class="footer-note">Snohomish Panthers &nbsp;·&nbsp; Math 3 &nbsp;·&nbsp; Chapter 2</p>
+</div>
+
+<script>
+// QUIZ
+let currentQ=1,totalQ=15,quizScore=0,answered=new Array(16).fill(false);
+const mcAnswers={2:'C',5:'B',8:'B',11:'B',14:'B'};
+const tfAnswers={3:true,7:true,9:true,13:false};
+
+function checkMC(btn,choice,qNum){
+  if(answered[qNum])return;answered[qNum]=true;
+  const btns=btn.closest('.choices').querySelectorAll('.choice-btn');
+  btns.forEach(b=>b.disabled=true);
+  const fb=document.getElementById('fb'+qNum);
+  if(choice===mcAnswers[qNum]){btn.classList.add('correct');quizScore++;showFB(fb,true,'✅ Correct!');}
+  else{btn.classList.add('wrong');const cb=[...btns].find(b=>b.textContent.startsWith(mcAnswers[qNum]));if(cb)cb.classList.add('correct');showFB(fb,false,'❌ Not quite — review the notes above!');}
+  updateScore();
+}
+function checkTF(btn,isTrue,qNum){
+  if(answered[qNum])return;answered[qNum]=true;
+  const btns=btn.closest('.tf-row').querySelectorAll('.tf-btn');
+  btns.forEach(b=>b.disabled=true);
+  const correct=tfAnswers[qNum];const userTrue=btn.classList.contains('true-btn');
+  const fb=document.getElementById('fb'+qNum);
+  if(userTrue===correct){btn.classList.add('correct');quizScore++;showFB(fb,true,'✅ Correct!');}
+  else{btn.classList.add('wrong');const cb=correct?btn.closest('.tf-row').querySelector('.true-btn'):btn.closest('.tf-row').querySelector('.false-btn');if(cb)cb.classList.add('correct');showFB(fb,false,'❌ Not quite — review the notes above!');}
+  updateScore();
+}
+function checkFill(inputId,accepted,qNum){
+  if(answered[qNum])return;answered[qNum]=true;
+  const input=document.getElementById(inputId);
+  const val=input.value.trim().replace(/\s+/g,'').toLowerCase();
+  const ok=accepted.map(a=>a.replace(/\s+/g,'').toLowerCase()).includes(val);
+  const fb=document.getElementById('fb'+qNum);input.disabled=true;
+  if(ok){input.classList.add('correct');quizScore++;showFB(fb,true,'✅ Correct!');}
+  else{input.classList.add('wrong');showFB(fb,false,'❌ The answer is: '+accepted[0]);}
+  updateScore();
+}
+function showFB(el,good,msg){el.textContent=msg;el.className='feedback-msg show '+(good?'good':'bad');}
+function updateScore(){document.getElementById('scoreTally').textContent='Score: '+quizScore;}
+function navQuiz(dir){
+  document.getElementById('q'+currentQ).classList.remove('active');
+  currentQ=Math.max(1,Math.min(totalQ,currentQ+dir));
+  document.getElementById('q'+currentQ).classList.add('active');
+  document.getElementById('qProgress').textContent='Question '+currentQ+' of '+totalQ;
+  document.getElementById('qBar').style.width=((currentQ/totalQ)*100)+'%';
+  document.getElementById('prevBtn').disabled=currentQ===1;
+  const nb=document.getElementById('nextBtn');
+  if(currentQ===totalQ){nb.textContent='Finish';nb.onclick=()=>showResults();}
+  else{nb.textContent='Next →';nb.onclick=()=>navQuiz(1);}
+}
+function showResults(){
+  document.getElementById('quizMain').style.display='none';document.getElementById('quizNav').style.display='none';
+  document.getElementById('quizResults').classList.add('show');
+  document.getElementById('finalScore').textContent=quizScore;
+  const pct=Math.round((quizScore/totalQ)*100);
+  document.getElementById('resultMsg').textContent=pct>=90?'🏆 Excellent! Chapter 2 mastered.':pct>=70?'💪 Good work! Review any you missed.':'📚 Keep studying — check the notes and try again!';
+}
+function restartQuiz(){
+  currentQ=1;quizScore=0;answered=new Array(16).fill(false);
+  document.getElementById('quizMain').style.display='';document.getElementById('quizNav').style.display='';
+  document.getElementById('quizResults').classList.remove('show');
+  for(let i=1;i<=totalQ;i++){
+    const b=document.getElementById('q'+i);b.classList.remove('active');
+    b.querySelectorAll('button').forEach(x=>{x.disabled=false;x.className=x.className.replace(/correct|wrong/g,'').trim();});
+    b.querySelectorAll('input').forEach(x=>{x.disabled=false;x.value='';x.className='fill-input';});
+    const fb=document.getElementById('fb'+i);if(fb)fb.className='feedback-msg';
+  }
+  document.getElementById('q1').classList.add('active');
+  document.getElementById('qProgress').textContent='Question 1 of 15';
+  document.getElementById('qBar').style.width='6.67%';
+  document.getElementById('prevBtn').disabled=true;
+  document.getElementById('nextBtn').textContent='Next →';document.getElementById('nextBtn').onclick=()=>navQuiz(1);
+  updateScore();
+}
+
+// GAME
+let gScore=0,gStreak=0,gCorrect=0,gQCount=0,gTimer=null,gTimeLeft=10,gAnswered=false,gameQueue=[],currentGame=null;
+const MAX_Q=20;
+const gameBank=[
+  {q:'Solve: x + 7 = 15',a:'x=8',opts:['x=8','x=22','x=7','x=−8']},
+  {q:'Solve: x − 5 = 12',a:'x=17',opts:['x=17','x=7','x=60','x=−17']},
+  {q:'Solve: 3x = 21',a:'x=7',opts:['x=7','x=18','x=63','x=3']},
+  {q:'Solve: x/4 = 6',a:'x=24',opts:['x=24','x=10','x=2','x=1.5']},
+  {q:'Solve: 2x + 3 = 11',a:'x=4',opts:['x=4','x=7','x=3','x=2']},
+  {q:'Solve: 5x − 2 = 18',a:'x=4',opts:['x=4','x=3','x=16','x=−4']},
+  {q:'Combine like terms: 3x + 5x',a:'8x',opts:['8x','15x','x8','3x+5x']},
+  {q:'Solve: 4x + 2 = 2x + 10',a:'x=4',opts:['x=4','x=6','x=2','x=8']},
+  {q:'Unit rate: $12 for 4 items',a:'$3 each',opts:['$3 each','$4 each','$8 each','$2 each']},
+  {q:'Cross multiply: 2/3 = x/9',a:'x=6',opts:['x=6','x=3','x=27','x=2']},
+  {q:'Similar figures have ___ sides.',a:'proportional',opts:['proportional','equal','parallel','random']},
+  {q:'Solve: x − 11 = 19',a:'x=30',opts:['x=30','x=8','x=20','x=−30']},
+  {q:'Solve: 7x = 49',a:'x=7',opts:['x=7','x=42','x=56','x=6']},
+  {q:'In 2-step: 3x+5=20, what goes first?',a:'subtract 5',opts:['subtract 5','divide by 3','add 3','multiply by 5']},
+  {q:'Solve: −3x = 18',a:'x=−6',opts:['x=−6','x=6','x=−21','x=15']},
+  {q:'Solve: x/5 = 3',a:'x=15',opts:['x=15','x=8','x=3','x=1.67']},
+  {q:'Solve: 2(x+3) = 14',a:'x=4',opts:['x=4','x=5','x=11','x=7']},
+  {q:'$18 for 6 items = unit rate of:',a:'$3 each',opts:['$3 each','$4 each','$6 each','$9 each']},
+  {q:'Proportion: 4/5 = 8/x',a:'x=10',opts:['x=10','x=5','x=40','x=2']},
+  {q:'Solve: 11y − 8 − 6y = 22',a:'y=6',opts:['y=6','y=3','y=30','y=−6']},
+];
+function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
+function startGame(){
+  gScore=0;gStreak=0;gCorrect=0;gQCount=0;gameQueue=shuffle(gameBank);
+  document.getElementById('gameOverPanel').classList.remove('show');
+  document.getElementById('gameFeedback').className='game-feedback';
+  updateGStats();nextGQ();
+}
+function nextGQ(){
+  if(gQCount>=MAX_Q){endGame();return;}
+  gAnswered=false;currentGame=gameQueue[gQCount%gameQueue.length];gQCount++;
+  const lvl=gStreak>=10?'🔥 On Fire':gStreak>=5?'Expert':gStreak>=3?'Pro':'Level 1';
+  document.getElementById('levelBadge').textContent=lvl;
+  const opts=shuffle(currentGame.opts);
+  let html=`<div class="game-question">${currentGame.q}</div><div class="game-choices">`;
+  opts.forEach(o=>{html+=`<button class="game-choice" onclick="answerG(this,${JSON.stringify(o)})">${o}</button>`;});
+  html+='</div>';
+  document.getElementById('gameBoard').innerHTML=html;startTimer();
+}
+function answerG(btn,choice){
+  if(gAnswered)return;gAnswered=true;clearInterval(gTimer);
+  const btns=document.querySelectorAll('.game-choice');btns.forEach(b=>b.disabled=true);
+  const fb=document.getElementById('gameFeedback');
+  if(choice===currentGame.a){
+    btn.classList.add('correct');gStreak++;gCorrect++;
+    const bonus=gStreak>=5?2:1;gScore+=10*bonus;
+    fb.textContent=gStreak>=5?`🔥 +${10*bonus} — Streak x${gStreak}!`:'✅ Correct! +10';
+    fb.className='game-feedback show good';
+  }else{
+    btn.classList.add('wrong');const cb=[...btns].find(b=>b.textContent===currentGame.a);if(cb)cb.classList.add('correct');
+    gStreak=0;fb.textContent='❌ Answer: '+currentGame.a;fb.className='game-feedback show bad';
+  }
+  updateGStats();setTimeout(nextGQ,1300);
+}
+function startTimer(){
+  gTimeLeft=10;document.getElementById('timerBar').style.width='100%';clearInterval(gTimer);
+  gTimer=setInterval(()=>{
+    gTimeLeft-=0.1;document.getElementById('timerBar').style.width=Math.max(0,(gTimeLeft/10)*100)+'%';
+    if(gTimeLeft<=0){
+      clearInterval(gTimer);
+      if(!gAnswered){
+        gAnswered=true;gStreak=0;document.querySelectorAll('.game-choice').forEach(b=>b.disabled=true);
+        const fb=document.getElementById('gameFeedback');
+        fb.textContent='⏱️ Time\'s up! Answer: '+currentGame.a;fb.className='game-feedback show bad';
+        updateGStats();setTimeout(nextGQ,1300);
+      }
+    }
+  },100);
+}
+function updateGStats(){
+  document.getElementById('gScore').textContent=gScore;document.getElementById('gStreak').textContent=gStreak;
+  document.getElementById('gCorrect').textContent=gCorrect;document.getElementById('gQ').textContent=gQCount;
+}
+function endGame(){
+  clearInterval(gTimer);document.getElementById('gameBoard').innerHTML='';document.getElementById('gameFeedback').className='game-feedback';
+  const panel=document.getElementById('gameOverPanel');panel.classList.add('show');
+  document.getElementById('goScore').textContent=gScore+' pts';
+  const pct=Math.round((gCorrect/MAX_Q)*100);
+  let msg=pct>=90?'🏆 Panther Legend!':pct>=70?'💪 Solid work!':'📚 Keep practicing!';
+  document.getElementById('goMsg').textContent=msg+` (${gCorrect}/${MAX_Q} correct)`;
+}
+</script>
+</body>
+</html>

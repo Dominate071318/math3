@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+  :root{--red:#cc0000;--black:#111111;--white:#ffffff;--gray:#f2f2f2;--mid:#e0e0e0;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--black);}
+  .hero{background:var(--black);color:var(--white);padding:52px 40px 44px;position:relative;overflow:hidden;}
+  .hero::before{content:'∑ ∫ π √ ∞ θ';position:absolute;top:12px;right:30px;font-size:13px;letter-spacing:10px;opacity:0.08;font-family:'DM Serif Display',serif;}
+  .hero-label{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:14px;}
+  .hero h1{font-family:'DM Serif Display',serif;font-size:48px;line-height:1.1;margin-bottom:10px;}
+  .hero h1 em{font-style:italic;color:var(--red);}
+  .hero-sub{font-size:15px;font-weight:300;opacity:0.7;margin-top:8px;}
+  .page-body{max-width:900px;margin:0 auto;padding:44px 32px 60px;}
+  .back-link{display:inline-flex;align-items:center;gap:8px;color:var(--red);font-size:13px;font-weight:600;text-decoration:none;margin-bottom:32px;letter-spacing:1px;text-transform:uppercase;}
+  .back-link:hover{opacity:0.7;}
+  .section-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;margin-top:48px;}
+  .section-header h2{font-family:'DM Serif Display',serif;font-size:28px;white-space:nowrap;}
+  .section-header .bar{flex:1;height:2px;background:var(--red);opacity:0.3;}
+  .notes-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:40px;}
+  .note-card{background:var(--white);border-radius:8px;border-top:3px solid var(--red);padding:22px 24px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
+  .note-card.full{grid-column:1/-1;}
+  .note-card .section-num{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:6px;}
+  .note-card h4{font-family:'DM Serif Display',serif;font-size:17px;margin-bottom:12px;}
+  .note-card .concept{font-size:13px;color:#555;line-height:1.6;font-weight:300;margin-bottom:10px;}
+  .formula-box{background:var(--black);color:var(--white);border-radius:6px;padding:10px 14px;font-size:14px;font-weight:500;text-align:center;margin-top:10px;font-family:'DM Serif Display',serif;}
+  .key-points{margin-top:12px;}
+  .key-points li{font-size:13px;color:#444;margin-bottom:6px;padding-left:16px;position:relative;list-style:none;font-weight:300;}
+  .key-points li::before{content:'→';position:absolute;left:0;color:var(--red);font-size:12px;}
+  .vocab-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+  .vocab-item{background:var(--gray);border-radius:6px;padding:8px 12px;font-size:13px;}
+  .vocab-item strong{color:var(--red);display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
+  .sign-table{margin-top:12px;border-collapse:collapse;width:100%;}
+  .sign-table td{padding:6px 10px;font-size:13px;border:1px solid var(--mid);text-align:center;}
+  .sign-table thead td{background:var(--black);color:var(--white);font-weight:600;}
+
+  /* QUIZ */
+  .quiz-container{background:var(--white);border-radius:8px;padding:36px;margin-bottom:40px;box-shadow:0 2px 12px rgba(0,0,0,0.05);}
+  .quiz-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+  .quiz-header h3{font-family:'DM Serif Display',serif;font-size:22px;}
+  .quiz-progress{font-size:13px;color:#888;font-weight:500;}
+  .progress-bar-wrap{height:4px;background:var(--mid);border-radius:2px;margin-bottom:28px;}
+  .progress-bar-fill{height:100%;background:var(--red);border-radius:2px;transition:width 0.4s;}
+  .question-block{display:none;}
+  .question-block.active{display:block;}
+  .question-type-label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:8px;}
+  .question-text{font-size:16px;font-weight:500;margin-bottom:20px;line-height:1.5;}
+  .choices{display:flex;flex-direction:column;gap:10px;}
+  .choice-btn{background:var(--gray);border:2px solid transparent;border-radius:6px;padding:14px 18px;text-align:left;cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;transition:all 0.15s;color:var(--black);}
+  .choice-btn:hover{border-color:var(--black);background:var(--white);}
+  .choice-btn.correct{background:#e8f5e9;border-color:#2e7d32;color:#1b5e20;}
+  .choice-btn.wrong{background:#ffebee;border-color:var(--red);color:#b71c1c;}
+  .choice-btn:disabled{cursor:default;}
+  .tf-row{display:flex;gap:12px;}
+  .tf-btn{flex:1;padding:16px;border-radius:6px;border:2px solid transparent;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--black);transition:all 0.15s;}
+  .tf-btn:hover{border-color:var(--black);}
+  .tf-btn.correct{background:#e8f5e9;border-color:#2e7d32;color:#1b5e20;}
+  .tf-btn.wrong{background:#ffebee;border-color:var(--red);color:#b71c1c;}
+  .tf-btn:disabled{cursor:default;}
+  .fill-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .fill-input{flex:1;min-width:120px;padding:12px 16px;border:2px solid var(--mid);border-radius:6px;font-size:16px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.15s;}
+  .fill-input:focus{border-color:var(--black);}
+  .fill-input.correct{border-color:#2e7d32;background:#e8f5e9;}
+  .fill-input.wrong{border-color:var(--red);background:#ffebee;}
+  .submit-btn{background:var(--black);color:var(--white);border:none;border-radius:6px;padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;}
+  .submit-btn:hover{background:var(--red);}
+  .feedback-msg{margin-top:14px;font-size:14px;font-weight:500;padding:10px 14px;border-radius:6px;display:none;}
+  .feedback-msg.show{display:block;}
+  .feedback-msg.good{background:#e8f5e9;color:#1b5e20;}
+  .feedback-msg.bad{background:#ffebee;color:#b71c1c;}
+  .quiz-nav{display:flex;justify-content:space-between;align-items:center;margin-top:28px;flex-wrap:wrap;gap:12px;}
+  .nav-btn{background:var(--black);color:var(--white);border:none;border-radius:6px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;}
+  .nav-btn:hover{background:var(--red);}
+  .nav-btn:disabled{opacity:0.3;cursor:default;background:var(--black);}
+  .score-display{font-size:14px;font-weight:600;color:#555;}
+  .quiz-results{display:none;text-align:center;padding:20px 0;}
+  .quiz-results.show{display:block;}
+  .result-score{font-family:'DM Serif Display',serif;font-size:64px;color:var(--red);line-height:1;margin-bottom:8px;}
+  .result-label{font-size:16px;color:#555;margin-bottom:16px;}
+  .result-msg{font-size:15px;color:var(--black);font-weight:500;margin-bottom:24px;}
+  .restart-btn{background:var(--red);color:var(--white);border:none;border-radius:6px;padding:14px 32px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+
+  /* GAME */
+  .game-container{background:var(--black);border-radius:8px;padding:36px;margin-bottom:40px;box-shadow:0 4px 20px rgba(0,0,0,0.15);}
+  .game-container h3{font-family:'DM Serif Display',serif;font-size:22px;color:var(--white);margin-bottom:6px;}
+  .game-subtitle{font-size:13px;color:#aaa;margin-bottom:24px;}
+  .game-stats{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
+  .stat-box{background:rgba(255,255,255,0.07);border-radius:6px;padding:12px 20px;text-align:center;min-width:75px;}
+  .stat-num{font-size:24px;font-weight:700;color:var(--red);line-height:1;}
+  .stat-label{font-size:10px;color:#aaa;margin-top:4px;letter-spacing:1px;text-transform:uppercase;}
+  .timer-bar-wrap{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin-bottom:16px;}
+  .timer-bar{height:100%;background:var(--red);border-radius:2px;transition:width 0.1s linear;}
+  .game-board{background:rgba(255,255,255,0.05);border-radius:8px;padding:24px;margin-bottom:16px;min-height:120px;}
+  .game-question{font-size:17px;color:var(--white);font-weight:500;margin-bottom:20px;line-height:1.5;}
+  .game-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .game-choice{background:rgba(255,255,255,0.1);border:2px solid transparent;border-radius:6px;padding:14px;color:var(--white);font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;text-align:center;}
+  .game-choice:hover{border-color:var(--red);background:rgba(204,0,0,0.2);}
+  .game-choice.correct{background:rgba(46,125,50,0.3);border-color:#4caf50;}
+  .game-choice.wrong{background:rgba(204,0,0,0.3);border-color:var(--red);}
+  .game-choice:disabled{cursor:default;}
+  .game-feedback{font-size:14px;color:var(--white);padding:10px 14px;border-radius:6px;display:none;margin-bottom:12px;}
+  .game-feedback.show{display:block;}
+  .game-feedback.good{background:rgba(46,125,50,0.3);}
+  .game-feedback.bad{background:rgba(204,0,0,0.3);}
+  .level-badge{display:inline-block;background:var(--red);color:var(--white);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:12px;margin-left:8px;}
+  .game-over-panel{display:none;text-align:center;padding:20px;}
+  .game-over-panel.show{display:block;}
+  .game-over-score{font-family:'DM Serif Display',serif;font-size:56px;color:var(--red);}
+  .game-over-msg{color:#ccc;font-size:15px;margin:12px 0 24px;}
+  .play-again-btn{background:var(--red);color:var(--white);border:none;border-radius:6px;padding:14px 32px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+  .footer-note{text-align:center;font-size:12px;color:#aaa;margin-top:48px;font-weight:300;letter-spacing:1px;}
+  @media(max-width:640px){.notes-grid,.game-choices,.vocab-grid{grid-template-columns:1fr;}.hero h1{font-size:34px;}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-label">Snohomish High School · Math 3</div>
+  <h1><em>Chapter 1</em><br>Algebra Foundations</h1>
+  <p class="hero-sub">Mr. Solbakken &nbsp;·&nbsp; 2025–26</p>
+</div>
+
+<div class="page-body">
+  <a class="back-link" href="index.html">← Back to Course Home</a>
+
+  <!-- NOTES -->
+  <div class="section-header"><h2>Chapter 1 Notes</h2><div class="bar"></div></div>
+  <div class="notes-grid">
+
+    <div class="note-card">
+      <div class="section-num">Section 1-1</div>
+      <h4>Algebraic Expressions</h4>
+      <p class="concept">Learn the vocabulary — these words translate English into math.</p>
+      <div class="vocab-grid">
+        <div class="vocab-item"><strong>Addition</strong>sum, plus, more than</div>
+        <div class="vocab-item"><strong>Subtraction</strong>difference, minus, less than</div>
+        <div class="vocab-item"><strong>Multiplication</strong>product, times</div>
+        <div class="vocab-item"><strong>Division</strong>quotient, divided by</div>
+      </div>
+      <ul class="key-points" style="margin-top:14px;">
+        <li>Algebraic expression: has variables (x, y, a, b) AND numbers AND operations</li>
+        <li>Numerical expression: numbers and operations only — NO variables</li>
+        <li>"32 more than n" → n + 32</li>
+        <li>"58 less than n" → n − 58 (NOT 58 − n!)</li>
+        <li>"6 times a number n" → 6n</li>
+        <li>"Quotient of n and 5" → n/5</li>
+        <li>"3 more than twice x" → 2x + 3</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 1-2</div>
+      <h4>Evaluating Expressions & PEMDAS</h4>
+      <p class="concept">Evaluating = simplifying (no = sign, not solving). Combine like terms. Follow PEMDAS!</p>
+      <div class="formula-box">PEMDAS: Parentheses → Exponents → Mult/Div → Add/Sub</div>
+      <ul class="key-points">
+        <li>Base = the big number; Exponent = how many times you multiply it by itself</li>
+        <li>2⁵ = 2·2·2·2·2 = 32</li>
+        <li>3⁴ = 3·3·3·3 = 81</li>
+        <li>Fractions raised to a power get SMALLER: (½)³ = 1/8</li>
+        <li>If x=5, y=2: evaluate x²+x−12÷y² → 25+5−3 = 27</li>
+        <li>Always show your work step by step!</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 1-3</div>
+      <h4>Square Roots</h4>
+      <p class="concept">A square root asks: what number times itself equals this? The number inside the √ is called the radicand.</p>
+      <div class="formula-box">√49 = 7 because 7 × 7 = 49 (Perfect Square!)</div>
+      <ul class="key-points">
+        <li>Perfect squares give whole number answers: √64=8, √100=10, √36=6</li>
+        <li>Non-perfect squares give decimals: √48≈6.93</li>
+        <li>To estimate: find nearest perfect squares above and below</li>
+        <li>√178 ≈ 13.34 → rounds to 13</li>
+        <li>Rounding: 0.5 and above → round up; below 0.5 → round down</li>
+        <li>√(25/49) = √25/√49 = 5/7</li>
+        <li>To order: convert everything to decimals first!</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 1-4</div>
+      <h4>Properties of Numbers</h4>
+      <p class="concept">These properties explain WHY math works — you use them without thinking!</p>
+      <ul class="key-points">
+        <li><strong>Commutative (Add):</strong> a+b = b+a → order doesn't matter</li>
+        <li><strong>Commutative (Mult):</strong> a·b = b·a → order doesn't matter</li>
+        <li><strong>Associative (Add):</strong> (a+b)+c = a+(b+c) → grouping doesn't matter</li>
+        <li><strong>Associative (Mult):</strong> (a·b)·c = a·(b·c) → grouping doesn't matter</li>
+        <li><strong>Mult. Property of −1:</strong> −1·a = −a → multiplying by negative flips the sign</li>
+        <li>+ × + = + &nbsp;|&nbsp; + × − = − &nbsp;|&nbsp; − × − = +</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 1-5</div>
+      <h4>The Number Line & Absolute Value</h4>
+      <p class="concept">Positive numbers are always to the RIGHT. Negative numbers are always to the LEFT.</p>
+      <div class="formula-box">Absolute Value = how far from 0. ALWAYS POSITIVE!</div>
+      <ul class="key-points">
+        <li>|4| = 4 &nbsp;&nbsp; |−4| = 4</li>
+        <li>Additive Inverse: what gets you back to 0 (−10 + 10 = 0)</li>
+        <li>Adding fractions: must have a COMMON denominator first</li>
+        <li>Whatever you do to the bottom of a fraction, do to the top too!</li>
+        <li>3 + (−5) = −2 → same as 3 − 5</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 1-6</div>
+      <h4>Multiplying & Dividing Real Numbers</h4>
+      <p class="concept">Sign rules are everything here. Memorize the sign chart!</p>
+      <ul class="key-points">
+        <li>+ × + = + &nbsp;|&nbsp; + × − = − &nbsp;|&nbsp; − × + = − &nbsp;|&nbsp; − × − = +</li>
+        <li>Multiplying fractions: multiply straight across (top × top, bottom × bottom)</li>
+        <li>Dividing fractions: flip the second fraction (reciprocal), then multiply</li>
+        <li>Multiplicative Inverse: what fraction × original = 1? (e.g. 10 × 1/10 = 1)</li>
+        <li>Simplify and reduce after multiplying!</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 1-7</div>
+      <h4>Distributive Property</h4>
+      <p class="concept">Multiply the OUTER term by everything INSIDE the parentheses.</p>
+      <div class="formula-box">a(b + c) = ab + ac</div>
+      <ul class="key-points">
+        <li>3(x + 8) = 3x + 24</li>
+        <li>−7(5x − 4) = −35x + 28</li>
+        <li>−(2y − 3x) = −2y + 3x (multiply by −1, flips all signs!)</li>
+        <li>1x = x (the 1 is always there, doesn't need to be written)</li>
+        <li>After distributing, combine like terms</li>
+        <li>Simplify fractions: 4−2x/8 → ½ − x/4</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 1-8</div>
+      <h4>Equations: True, False, or Open?</h4>
+      <p class="concept">Check both sides — do they equal? A variable with no given value = Open.</p>
+      <ul class="key-points">
+        <li><strong>True:</strong> both sides equal → 24+18 = 20+22 → 42=42 ✓ TRUE</li>
+        <li><strong>False:</strong> sides don't equal → 14−7 = 11+6 → 7≠17 FALSE</li>
+        <li><strong>Open:</strong> has a variable with no given value → 2x−10=24</li>
+        <li>If a value IS given for x, plug it in and check — it becomes True or False!</li>
+        <li>6x−8=−5; x=½ → 6(½)−8=−5 → 3−8=−5 → −5=−5 TRUE</li>
+      </ul>
+    </div>
+
+    <div class="note-card full">
+      <div class="section-num">Section 1-9</div>
+      <h4>Ordered Pairs & Solutions</h4>
+      <p class="concept">An ordered pair (x, y) — first number is ALWAYS x, second is ALWAYS y. To check if it's a solution, substitute both values and see if the equation is true.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;">
+        <ul class="key-points">
+          <li>Is (5, 20) a solution to y = 4x? → 20 = 4(5) → 20=20 YES!</li>
+          <li>Is (6, 18) a solution to y−6=x+2? → 18−6=6+2 → 12≠8 NO</li>
+          <li>Always show your work — substitute both values!</li>
+        </ul>
+        <ul class="key-points">
+          <li>Is (−10,−2) a solution to x/5=y? → −10/5=−2 → −2=−2 YES</li>
+          <li>Is (5,1) a solution to y=11−2x? → 1=11−10 → 1=1 YES</li>
+          <li>★ Always show your work ★</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- QUIZ -->
+  <div class="section-header"><h2>Chapter 1 Practice Quiz</h2><div class="bar"></div></div>
+  <div class="quiz-container">
+    <div class="quiz-header">
+      <h3>15-Question Check</h3>
+      <div class="quiz-progress" id="qProgress">Question 1 of 15</div>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="qBar" style="width:6.67%"></div></div>
+
+    <div id="quizMain">
+      <div class="question-block active" id="q1">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">"58 less than a number n" written as an algebraic expression is:</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',1)">A) 58 − n</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',1)">B) n − 58</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',1)">C) n + 58</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',1)">D) 58n</button>
+        </div>
+        <div class="feedback-msg" id="fb1"></div>
+      </div>
+
+      <div class="question-block" id="q2">
+        <div class="question-type-label">Fill in the Answer</div>
+        <div class="question-text">What is 2⁵? (two to the fifth power)</div>
+        <div class="fill-row"><input class="fill-input" id="fi2" placeholder="Answer"/><button class="submit-btn" onclick="checkFill('fi2',['32'],2)">Check</button></div>
+        <div class="feedback-msg" id="fb2"></div>
+      </div>
+
+      <div class="question-block" id="q3">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">In PEMDAS, what do you do FIRST?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',3)">A) Addition</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',3)">B) Multiplication</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',3)">C) Parentheses</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',3)">D) Exponents</button>
+        </div>
+        <div class="feedback-msg" id="fb3"></div>
+      </div>
+
+      <div class="question-block" id="q4">
+        <div class="question-type-label">True / False</div>
+        <div class="question-text">√64 = 8 is a perfect square.</div>
+        <div class="tf-row">
+          <button class="tf-btn true-btn" onclick="checkTF(this,true,4)">True</button>
+          <button class="tf-btn false-btn" onclick="checkTF(this,false,4)">False</button>
+        </div>
+        <div class="feedback-msg" id="fb4"></div>
+      </div>
+
+      <div class="question-block" id="q5">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">Which property does this show? 2 + 3 = 3 + 2</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',5)">A) Associative Property of Addition</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',5)">B) Commutative Property of Addition</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',5)">C) Distributive Property</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',5)">D) Multiplication Property of −1</button>
+        </div>
+        <div class="feedback-msg" id="fb5"></div>
+      </div>
+
+      <div class="question-block" id="q6">
+        <div class="question-type-label">Fill in the Answer</div>
+        <div class="question-text">What is |−15|?</div>
+        <div class="fill-row"><input class="fill-input" id="fi6" placeholder="Answer"/><button class="submit-btn" onclick="checkFill('fi6',['15'],6)">Check</button></div>
+        <div class="feedback-msg" id="fb6"></div>
+      </div>
+
+      <div class="question-block" id="q7">
+        <div class="question-type-label">True / False</div>
+        <div class="question-text">Absolute value is always positive.</div>
+        <div class="tf-row">
+          <button class="tf-btn true-btn" onclick="checkTF(this,true,7)">True</button>
+          <button class="tf-btn false-btn" onclick="checkTF(this,false,7)">False</button>
+        </div>
+        <div class="feedback-msg" id="fb7"></div>
+      </div>
+
+      <div class="question-block" id="q8">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">What is (−5) × (−7)?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',8)">A) −35</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',8)">B) 35</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',8)">C) −12</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',8)">D) 12</button>
+        </div>
+        <div class="feedback-msg" id="fb8"></div>
+      </div>
+
+      <div class="question-block" id="q9">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">Distribute: 3(x + 8) = ?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',9)">A) 3x + 8</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',9)">B) 3x + 24</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',9)">C) x + 24</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',9)">D) 3x + 11</button>
+        </div>
+        <div class="feedback-msg" id="fb9"></div>
+      </div>
+
+      <div class="question-block" id="q10">
+        <div class="question-type-label">True / False</div>
+        <div class="question-text">The equation 2x − 10 = 24 (with no value given for x) is an OPEN equation.</div>
+        <div class="tf-row">
+          <button class="tf-btn true-btn" onclick="checkTF(this,true,10)">True</button>
+          <button class="tf-btn false-btn" onclick="checkTF(this,false,10)">False</button>
+        </div>
+        <div class="feedback-msg" id="fb10"></div>
+      </div>
+
+      <div class="question-block" id="q11">
+        <div class="question-type-label">Fill in the Answer</div>
+        <div class="question-text">Evaluate: 3⁴ = ?</div>
+        <div class="fill-row"><input class="fill-input" id="fi11" placeholder="Answer"/><button class="submit-btn" onclick="checkFill('fi11',['81'],11)">Check</button></div>
+        <div class="feedback-msg" id="fb11"></div>
+      </div>
+
+      <div class="question-block" id="q12">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">Is (5, 20) a solution to y = 4x?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',12)">A) Yes — 20 = 4(5) = 20 ✓</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',12)">B) No — it doesn't work</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',12)">C) Open — need more info</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',12)">D) Cannot determine</button>
+        </div>
+        <div class="feedback-msg" id="fb12"></div>
+      </div>
+
+      <div class="question-block" id="q13">
+        <div class="question-type-label">True / False</div>
+        <div class="question-text">When dividing fractions, you flip the FIRST fraction (reciprocal) and multiply.</div>
+        <div class="tf-row">
+          <button class="tf-btn true-btn" onclick="checkTF(this,false,13)">True</button>
+          <button class="tf-btn false-btn" onclick="checkTF(this,true,13)">False</button>
+        </div>
+        <div class="feedback-msg" id="fb13"></div>
+      </div>
+
+      <div class="question-block" id="q14">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">Simplify: (6−2)² ÷ 2</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',14)">A) 2</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',14)">B) 16</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',14)">C) 8</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',14)">D) 4</button>
+        </div>
+        <div class="feedback-msg" id="fb14"></div>
+      </div>
+
+      <div class="question-block" id="q15">
+        <div class="question-type-label">Fill in the Answer</div>
+        <div class="question-text">"3 more than twice a number x" — write the expression (e.g. 2x+3)</div>
+        <div class="fill-row"><input class="fill-input" id="fi15" placeholder="Expression"/><button class="submit-btn" onclick="checkFill('fi15',['2x+3','3+2x'],15)">Check</button></div>
+        <div class="feedback-msg" id="fb15"></div>
+      </div>
+    </div>
+
+    <div class="quiz-results" id="quizResults">
+      <div class="result-score" id="finalScore"></div>
+      <div class="result-label">out of 15</div>
+      <div class="result-msg" id="resultMsg"></div>
+      <button class="restart-btn" onclick="restartQuiz()">Try Again</button>
+    </div>
+    <div class="quiz-nav" id="quizNav">
+      <button class="nav-btn" id="prevBtn" onclick="navQuiz(-1)" disabled>← Prev</button>
+      <div class="score-display" id="scoreTally">Score: 0</div>
+      <button class="nav-btn" id="nextBtn" onclick="navQuiz(1)">Next →</button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div class="section-header"><h2>Algebra Blitz 🎮</h2><div class="bar"></div></div>
+  <div class="game-container">
+    <h3>Chapter 1 Sprint <span class="level-badge" id="levelBadge">Level 1</span></h3>
+    <p class="game-subtitle">10 seconds per question. Build your streak for bonus points! 20 questions total.</p>
+    <div class="game-stats">
+      <div class="stat-box"><div class="stat-num" id="gScore">0</div><div class="stat-label">Score</div></div>
+      <div class="stat-box"><div class="stat-num" id="gStreak">0</div><div class="stat-label">🔥 Streak</div></div>
+      <div class="stat-box"><div class="stat-num" id="gCorrect">0</div><div class="stat-label">Correct</div></div>
+      <div class="stat-box"><div class="stat-num" id="gQ">0</div><div class="stat-label">Done</div></div>
+    </div>
+    <div class="timer-bar-wrap"><div class="timer-bar" id="timerBar" style="width:100%"></div></div>
+    <div class="game-board" id="gameBoard">
+      <div style="text-align:center;padding:20px 0;">
+        <p style="color:#ccc;font-size:15px;margin-bottom:20px;">Test your Chapter 1 knowledge against the clock!</p>
+        <button class="play-again-btn" onclick="startGame()" style="font-size:16px;padding:16px 40px;">Start Game 🚀</button>
+      </div>
+    </div>
+    <div class="game-feedback" id="gameFeedback"></div>
+    <div class="game-over-panel" id="gameOverPanel">
+      <div class="game-over-score" id="goScore"></div>
+      <div class="game-over-msg" id="goMsg"></div>
+      <button class="play-again-btn" onclick="startGame()">Play Again 🔄</button>
+    </div>
+  </div>
+
+  <p class="footer-note">Snohomish Panthers &nbsp;·&nbsp; Math 3 &nbsp;·&nbsp; Chapter 1</p>
+</div>
+
+<script>
+// QUIZ
+let currentQ=1,totalQ=15,quizScore=0,answered=new Array(16).fill(false);
+const mcAnswers={1:'B',3:'C',5:'B',8:'B',9:'B',12:'A',14:'C'};
+const tfAnswers={4:true,7:true,10:true,13:false};
+
+function checkMC(btn,choice,qNum){
+  if(answered[qNum])return;answered[qNum]=true;
+  const btns=btn.closest('.choices').querySelectorAll('.choice-btn');
+  btns.forEach(b=>b.disabled=true);
+  const fb=document.getElementById('fb'+qNum);
+  if(choice===mcAnswers[qNum]){btn.classList.add('correct');quizScore++;showFB(fb,true,'✅ Correct!');}
+  else{btn.classList.add('wrong');const cb=[...btns].find(b=>b.textContent.startsWith(mcAnswers[qNum]));if(cb)cb.classList.add('correct');showFB(fb,false,'❌ Not quite — review the notes above!');}
+  updateScore();
+}
+function checkTF(btn,isTrue,qNum){
+  if(answered[qNum])return;answered[qNum]=true;
+  const btns=btn.closest('.tf-row').querySelectorAll('.tf-btn');
+  btns.forEach(b=>b.disabled=true);
+  const correct=tfAnswers[qNum];
+  const userTrue=btn.classList.contains('true-btn');
+  const fb=document.getElementById('fb'+qNum);
+  if(userTrue===correct){btn.classList.add('correct');quizScore++;showFB(fb,true,'✅ Correct!');}
+  else{btn.classList.add('wrong');const cb=correct?btn.closest('.tf-row').querySelector('.true-btn'):btn.closest('.tf-row').querySelector('.false-btn');if(cb)cb.classList.add('correct');showFB(fb,false,'❌ Not quite — review the notes above!');}
+  updateScore();
+}
+function checkFill(inputId,accepted,qNum){
+  if(answered[qNum])return;answered[qNum]=true;
+  const input=document.getElementById(inputId);
+  const val=input.value.trim().replace(/\s+/g,'').toLowerCase();
+  const ok=accepted.map(a=>a.replace(/\s+/g,'').toLowerCase()).includes(val);
+  const fb=document.getElementById('fb'+qNum);
+  input.disabled=true;
+  if(ok){input.classList.add('correct');quizScore++;showFB(fb,true,'✅ Correct!');}
+  else{input.classList.add('wrong');showFB(fb,false,'❌ The answer is: '+accepted[0]);}
+  updateScore();
+}
+function showFB(el,good,msg){el.textContent=msg;el.className='feedback-msg show '+(good?'good':'bad');}
+function updateScore(){document.getElementById('scoreTally').textContent='Score: '+quizScore;}
+function navQuiz(dir){
+  document.getElementById('q'+currentQ).classList.remove('active');
+  currentQ=Math.max(1,Math.min(totalQ,currentQ+dir));
+  document.getElementById('q'+currentQ).classList.add('active');
+  document.getElementById('qProgress').textContent='Question '+currentQ+' of '+totalQ;
+  document.getElementById('qBar').style.width=((currentQ/totalQ)*100)+'%';
+  document.getElementById('prevBtn').disabled=currentQ===1;
+  const nb=document.getElementById('nextBtn');
+  if(currentQ===totalQ){nb.textContent='Finish';nb.onclick=()=>showResults();}
+  else{nb.textContent='Next →';nb.onclick=()=>navQuiz(1);}
+}
+function showResults(){
+  document.getElementById('quizMain').style.display='none';
+  document.getElementById('quizNav').style.display='none';
+  document.getElementById('quizResults').classList.add('show');
+  document.getElementById('finalScore').textContent=quizScore;
+  const pct=Math.round((quizScore/totalQ)*100);
+  document.getElementById('resultMsg').textContent=pct>=90?'🏆 Excellent! Chapter 1 mastered.':pct>=70?'💪 Good work! Review any you missed.':'📚 Keep studying — check the notes and try again!';
+}
+function restartQuiz(){
+  currentQ=1;quizScore=0;answered=new Array(16).fill(false);
+  document.getElementById('quizMain').style.display='';document.getElementById('quizNav').style.display='';
+  document.getElementById('quizResults').classList.remove('show');
+  for(let i=1;i<=totalQ;i++){
+    const b=document.getElementById('q'+i);b.classList.remove('active');
+    b.querySelectorAll('button').forEach(x=>{x.disabled=false;x.className=x.className.replace(/correct|wrong/g,'').trim();});
+    b.querySelectorAll('input').forEach(x=>{x.disabled=false;x.value='';x.className='fill-input';});
+    const fb=document.getElementById('fb'+i);if(fb)fb.className='feedback-msg';
+  }
+  document.getElementById('q1').classList.add('active');
+  document.getElementById('qProgress').textContent='Question 1 of 15';
+  document.getElementById('qBar').style.width='6.67%';
+  document.getElementById('prevBtn').disabled=true;
+  document.getElementById('nextBtn').textContent='Next →';
+  document.getElementById('nextBtn').onclick=()=>navQuiz(1);
+  updateScore();
+}
+
+// GAME
+let gScore=0,gStreak=0,gCorrect=0,gQCount=0,gTimer=null,gTimeLeft=10,gAnswered=false,gameQueue=[],currentGame=null;
+const MAX_Q=20;
+const gameBank=[
+  {q:'"32 more than a number n" equals:',a:'n+32',opts:['n+32','32−n','32n','n÷32']},
+  {q:'What is the product of 6 and n?',a:'6n',opts:['6n','6+n','n−6','n÷6']},
+  {q:'What is 3⁴?',a:'81',opts:['81','64','27','12']},
+  {q:'What is 2⁵?',a:'32',opts:['32','10','16','25']},
+  {q:'What does PEMDAS stand for first?',a:'Parentheses',opts:['Parentheses','Powers','Plus','Product']},
+  {q:'√100 = ?',a:'10',opts:['10','50','20','100']},
+  {q:'√64 = ?',a:'8',opts:['8','6','32','4']},
+  {q:'Absolute value of −15?',a:'15',opts:['15','−15','0','1']},
+  {q:'(−3) × (−4) = ?',a:'12',opts:['12','−12','7','−7']},
+  {q:'(+5) × (−2) = ?',a:'−10',opts:['−10','10','−3','3']},
+  {q:'Distribute: 4(x+3) = ?',a:'4x+12',opts:['4x+12','4x+3','x+12','4x+7']},
+  {q:'Distribute: −2(x−5) = ?',a:'−2x+10',opts:['−2x+10','−2x−10','2x+10','2x−10']},
+  {q:'Which property: a+b = b+a?',a:'Commutative',opts:['Commutative','Associative','Distributive','Identity']},
+  {q:'Which property: (a+b)+c = a+(b+c)?',a:'Associative',opts:['Associative','Commutative','Distributive','Inverse']},
+  {q:'Is 14−7 = 11+6 True or False?',a:'False',opts:['False','True','Open','Cannot tell']},
+  {q:'2x−10=24 with no x value given is:',a:'Open',opts:['Open','True','False','Solved']},
+  {q:'Is (5,20) a solution to y=4x?',a:'Yes',opts:['Yes','No']},
+  {q:'Dividing fractions: flip the ___ fraction.',a:'second',opts:['second','first','both','neither']},
+  {q:'|−7| = ?',a:'7',opts:['7','−7','0','49']},
+  {q:'Fractions raised to a power get:',a:'Smaller',opts:['Smaller','Larger','Same','Zero']},
+  {q:'"9 less than quotient of 8 and y" = ?',a:'8/y−9',opts:['8/y−9','9−8/y','8y−9','9/8−y']},
+  {q:'Additive inverse of 10 is:',a:'−10',opts:['−10','10','0','1']},
+];
+function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
+function startGame(){
+  gScore=0;gStreak=0;gCorrect=0;gQCount=0;
+  gameQueue=shuffle(gameBank);
+  document.getElementById('gameOverPanel').classList.remove('show');
+  document.getElementById('gameFeedback').className='game-feedback';
+  updateGStats();nextGQ();
+}
+function nextGQ(){
+  if(gQCount>=MAX_Q){endGame();return;}
+  gAnswered=false;currentGame=gameQueue[gQCount%gameQueue.length];gQCount++;
+  const lvl=gStreak>=10?'🔥 On Fire':gStreak>=5?'Expert':gStreak>=3?'Pro':'Level 1';
+  document.getElementById('levelBadge').textContent=lvl;
+  const opts=shuffle(currentGame.opts);
+  let html=`<div class="game-question">${currentGame.q}</div><div class="game-choices">`;
+  opts.forEach(o=>{html+=`<button class="game-choice" onclick="answerG(this,${JSON.stringify(o)})">${o}</button>`;});
+  html+='</div>';
+  document.getElementById('gameBoard').innerHTML=html;
+  startTimer();
+}
+function answerG(btn,choice){
+  if(gAnswered)return;gAnswered=true;clearInterval(gTimer);
+  const btns=document.querySelectorAll('.game-choice');btns.forEach(b=>b.disabled=true);
+  const fb=document.getElementById('gameFeedback');
+  if(choice===currentGame.a){
+    btn.classList.add('correct');gStreak++;gCorrect++;
+    const bonus=gStreak>=5?2:1;gScore+=10*bonus;
+    fb.textContent=gStreak>=5?`🔥 +${10*bonus} — Streak x${gStreak}!`:'✅ Correct! +10';
+    fb.className='game-feedback show good';
+  }else{
+    btn.classList.add('wrong');const cb=[...btns].find(b=>b.textContent===currentGame.a);if(cb)cb.classList.add('correct');
+    gStreak=0;fb.textContent='❌ Answer: '+currentGame.a;fb.className='game-feedback show bad';
+  }
+  updateGStats();setTimeout(nextGQ,1300);
+}
+function startTimer(){
+  gTimeLeft=10;document.getElementById('timerBar').style.width='100%';clearInterval(gTimer);
+  gTimer=setInterval(()=>{
+    gTimeLeft-=0.1;document.getElementById('timerBar').style.width=Math.max(0,(gTimeLeft/10)*100)+'%';
+    if(gTimeLeft<=0){
+      clearInterval(gTimer);
+      if(!gAnswered){
+        gAnswered=true;gStreak=0;document.querySelectorAll('.game-choice').forEach(b=>b.disabled=true);
+        const fb=document.getElementById('gameFeedback');
+        fb.textContent='⏱️ Time\'s up! Answer: '+currentGame.a;fb.className='game-feedback show bad';
+        updateGStats();setTimeout(nextGQ,1300);
+      }
+    }
+  },100);
+}
+function updateGStats(){
+  document.getElementById('gScore').textContent=gScore;document.getElementById('gStreak').textContent=gStreak;
+  document.getElementById('gCorrect').textContent=gCorrect;document.getElementById('gQ').textContent=gQCount;
+}
+function endGame(){
+  clearInterval(gTimer);document.getElementById('gameBoard').innerHTML='';document.getElementById('gameFeedback').className='game-feedback';
+  const panel=document.getElementById('gameOverPanel');panel.classList.add('show');
+  document.getElementById('goScore').textContent=gScore+' pts';
+  const pct=Math.round((gCorrect/MAX_Q)*100);
+  let msg=pct>=90?'🏆 Panther Legend!':pct>=70?'💪 Solid work!':'📚 Keep practicing!';
+  document.getElementById('goMsg').textContent=msg+` (${gCorrect}/${MAX_Q} correct)`;
+}
+</script>
+</body>
+</html>

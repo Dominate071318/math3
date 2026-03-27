@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+  :root{--red:#cc0000;--black:#111111;--white:#ffffff;--gray:#f2f2f2;--mid:#e0e0e0;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--black);}
+  .hero{background:var(--black);color:var(--white);padding:52px 40px 44px;position:relative;overflow:hidden;}
+  .hero::before{content:'< > ≤ ≥ ≠ ∞';position:absolute;top:12px;right:30px;font-size:13px;letter-spacing:10px;opacity:0.08;font-family:'DM Serif Display',serif;}
+  .hero-label{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:14px;}
+  .hero h1{font-family:'DM Serif Display',serif;font-size:48px;line-height:1.1;margin-bottom:10px;}
+  .hero h1 em{font-style:italic;color:var(--red);}
+  .hero-sub{font-size:15px;font-weight:300;opacity:0.7;margin-top:8px;}
+  .page-body{max-width:900px;margin:0 auto;padding:44px 32px 60px;}
+  .back-link{display:inline-flex;align-items:center;gap:8px;color:var(--red);font-size:13px;font-weight:600;text-decoration:none;margin-bottom:32px;letter-spacing:1px;text-transform:uppercase;}
+  .section-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;margin-top:48px;}
+  .section-header h2{font-family:'DM Serif Display',serif;font-size:28px;white-space:nowrap;}
+  .section-header .bar{flex:1;height:2px;background:var(--red);opacity:0.3;}
+  .notes-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:40px;}
+  .note-card{background:var(--white);border-radius:8px;border-top:3px solid var(--red);padding:22px 24px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
+  .note-card.full{grid-column:1/-1;}
+  .note-card .section-num{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:6px;}
+  .note-card h4{font-family:'DM Serif Display',serif;font-size:17px;margin-bottom:12px;}
+  .note-card .concept{font-size:13px;color:#555;line-height:1.6;font-weight:300;margin-bottom:10px;}
+  .formula-box{background:var(--black);color:var(--white);border-radius:6px;padding:10px 14px;font-size:14px;font-weight:500;text-align:center;margin-top:10px;font-family:'DM Serif Display',serif;}
+  .alert-box{background:#fff3cd;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:10px 14px;margin-top:12px;font-size:13px;font-weight:500;color:#92400e;}
+  .key-points{margin-top:12px;}
+  .key-points li{font-size:13px;color:#444;margin-bottom:6px;padding-left:16px;position:relative;list-style:none;font-weight:300;}
+  .key-points li::before{content:'→';position:absolute;left:0;color:var(--red);font-size:12px;}
+  .symbol-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+  .symbol-item{background:var(--gray);border-radius:6px;padding:8px 12px;font-size:13px;display:flex;align-items:center;gap:10px;}
+  .symbol-item .sym{font-size:20px;font-weight:700;color:var(--red);width:24px;}
+  /* QUIZ */
+  .quiz-container{background:var(--white);border-radius:8px;padding:36px;margin-bottom:40px;box-shadow:0 2px 12px rgba(0,0,0,0.05);}
+  .quiz-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+  .quiz-header h3{font-family:'DM Serif Display',serif;font-size:22px;}
+  .quiz-progress{font-size:13px;color:#888;font-weight:500;}
+  .progress-bar-wrap{height:4px;background:var(--mid);border-radius:2px;margin-bottom:28px;}
+  .progress-bar-fill{height:100%;background:var(--red);border-radius:2px;transition:width 0.4s;}
+  .question-block{display:none;}.question-block.active{display:block;}
+  .question-type-label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:8px;}
+  .question-text{font-size:16px;font-weight:500;margin-bottom:20px;line-height:1.5;}
+  .choices{display:flex;flex-direction:column;gap:10px;}
+  .choice-btn{background:var(--gray);border:2px solid transparent;border-radius:6px;padding:14px 18px;text-align:left;cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;transition:all 0.15s;color:var(--black);}
+  .choice-btn:hover{border-color:var(--black);background:var(--white);}
+  .choice-btn.correct{background:#e8f5e9;border-color:#2e7d32;color:#1b5e20;}
+  .choice-btn.wrong{background:#ffebee;border-color:var(--red);color:#b71c1c;}
+  .choice-btn:disabled{cursor:default;}
+  .tf-row{display:flex;gap:12px;}
+  .tf-btn{flex:1;padding:16px;border-radius:6px;border:2px solid transparent;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--black);transition:all 0.15s;}
+  .tf-btn:hover{border-color:var(--black);}
+  .tf-btn.correct{background:#e8f5e9;border-color:#2e7d32;color:#1b5e20;}
+  .tf-btn.wrong{background:#ffebee;border-color:var(--red);color:#b71c1c;}
+  .tf-btn:disabled{cursor:default;}
+  .fill-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .fill-input{flex:1;min-width:120px;padding:12px 16px;border:2px solid var(--mid);border-radius:6px;font-size:16px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.15s;}
+  .fill-input:focus{border-color:var(--black);}
+  .fill-input.correct{border-color:#2e7d32;background:#e8f5e9;}
+  .fill-input.wrong{border-color:var(--red);background:#ffebee;}
+  .submit-btn{background:var(--black);color:var(--white);border:none;border-radius:6px;padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;}
+  .submit-btn:hover{background:var(--red);}
+  .feedback-msg{margin-top:14px;font-size:14px;font-weight:500;padding:10px 14px;border-radius:6px;display:none;}
+  .feedback-msg.show{display:block;}
+  .feedback-msg.good{background:#e8f5e9;color:#1b5e20;}
+  .feedback-msg.bad{background:#ffebee;color:#b71c1c;}
+  .quiz-nav{display:flex;justify-content:space-between;align-items:center;margin-top:28px;flex-wrap:wrap;gap:12px;}
+  .nav-btn{background:var(--black);color:var(--white);border:none;border-radius:6px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;}
+  .nav-btn:hover{background:var(--red);}
+  .nav-btn:disabled{opacity:0.3;cursor:default;background:var(--black);}
+  .score-display{font-size:14px;font-weight:600;color:#555;}
+  .quiz-results{display:none;text-align:center;padding:20px 0;}
+  .quiz-results.show{display:block;}
+  .result-score{font-family:'DM Serif Display',serif;font-size:64px;color:var(--red);line-height:1;margin-bottom:8px;}
+  .result-label{font-size:16px;color:#555;margin-bottom:16px;}
+  .result-msg{font-size:15px;color:var(--black);font-weight:500;margin-bottom:24px;}
+  .restart-btn{background:var(--red);color:var(--white);border:none;border-radius:6px;padding:14px 32px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+  /* GAME */
+  .game-container{background:var(--black);border-radius:8px;padding:36px;margin-bottom:40px;box-shadow:0 4px 20px rgba(0,0,0,0.15);}
+  .game-container h3{font-family:'DM Serif Display',serif;font-size:22px;color:var(--white);margin-bottom:6px;}
+  .game-subtitle{font-size:13px;color:#aaa;margin-bottom:24px;}
+  .game-stats{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
+  .stat-box{background:rgba(255,255,255,0.07);border-radius:6px;padding:12px 20px;text-align:center;min-width:75px;}
+  .stat-num{font-size:24px;font-weight:700;color:var(--red);line-height:1;}
+  .stat-label{font-size:10px;color:#aaa;margin-top:4px;letter-spacing:1px;text-transform:uppercase;}
+  .timer-bar-wrap{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin-bottom:16px;}
+  .timer-bar{height:100%;background:var(--red);border-radius:2px;transition:width 0.1s linear;}
+  .game-board{background:rgba(255,255,255,0.05);border-radius:8px;padding:24px;margin-bottom:16px;min-height:120px;}
+  .game-question{font-size:17px;color:var(--white);font-weight:500;margin-bottom:20px;line-height:1.5;}
+  .game-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .game-choice{background:rgba(255,255,255,0.1);border:2px solid transparent;border-radius:6px;padding:14px;color:var(--white);font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;text-align:center;}
+  .game-choice:hover{border-color:var(--red);background:rgba(204,0,0,0.2);}
+  .game-choice.correct{background:rgba(46,125,50,0.3);border-color:#4caf50;}
+  .game-choice.wrong{background:rgba(204,0,0,0.3);border-color:var(--red);}
+  .game-choice:disabled{cursor:default;}
+  .game-feedback{font-size:14px;color:var(--white);padding:10px 14px;border-radius:6px;display:none;margin-bottom:12px;}
+  .game-feedback.show{display:block;}
+  .game-feedback.good{background:rgba(46,125,50,0.3);}
+  .game-feedback.bad{background:rgba(204,0,0,0.3);}
+  .level-badge{display:inline-block;background:var(--red);color:var(--white);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:12px;margin-left:8px;}
+  .game-over-panel{display:none;text-align:center;padding:20px;}
+  .game-over-panel.show{display:block;}
+  .game-over-score{font-family:'DM Serif Display',serif;font-size:56px;color:var(--red);}
+  .game-over-msg{color:#ccc;font-size:15px;margin:12px 0 24px;}
+  .play-again-btn{background:var(--red);color:var(--white);border:none;border-radius:6px;padding:14px 32px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+  .footer-note{text-align:center;font-size:12px;color:#aaa;margin-top:48px;font-weight:300;letter-spacing:1px;}
+  @media(max-width:640px){.notes-grid,.game-choices,.symbol-grid{grid-template-columns:1fr;}.hero h1{font-size:34px;}}
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="hero-label">Snohomish High School · Math 3</div>
+  <h1><em>Chapter 3</em><br>Inequalities</h1>
+  <p class="hero-sub">Mr. Solbakken &nbsp;·&nbsp; 2025–26</p>
+</div>
+<div class="page-body">
+  <a class="back-link" href="index.html">← Back to Course Home</a>
+  <div class="section-header"><h2>Chapter 3 Notes</h2><div class="bar"></div></div>
+  <div class="notes-grid">
+
+    <div class="note-card">
+      <div class="section-num">Section 3-1 Part A</div>
+      <h4>Writing & Solving Inequalities</h4>
+      <p class="concept">An inequality is like an equation but instead of = we use <, >, ≤, or ≥. Think of it like an alligator — the mouth wants to eat the BIGGER number!</p>
+      <div class="symbol-grid">
+        <div class="symbol-item"><span class="sym">&lt;</span>less than</div>
+        <div class="symbol-item"><span class="sym">&gt;</span>greater than</div>
+        <div class="symbol-item"><span class="sym">≤</span>less than or equal to</div>
+        <div class="symbol-item"><span class="sym">≥</span>greater than or equal to</div>
+      </div>
+      <ul class="key-points">
+        <li>"All real numbers x less than or equal to −7" → x ≤ −7</li>
+        <li>"6 less than a number k is greater than 13" → k − 6 > 13</li>
+        <li>Solve like an equation — move everything away from the variable</li>
+        <li>2x + 1 > −3 → 2x > −4 → x > −2</li>
+        <li>Always read the VARIABLE FIRST when graphing</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 3-1 Part B</div>
+      <h4>Graphing Inequalities on a Number Line</h4>
+      <p class="concept">Draw the solution on a number line. The type of dot and arrow direction matter!</p>
+      <div class="formula-box">Greater than (>) → arrow points RIGHT &nbsp;|&nbsp; Less than (&lt;) → arrow points LEFT</div>
+      <ul class="key-points">
+        <li>OPEN dot (○) for &lt; and &gt; — the number is NOT included</li>
+        <li>CLOSED dot (●) for ≤ and ≥ — the number IS included</li>
+        <li>x > 7: open dot at 7, arrow goes right</li>
+        <li>n ≥ −2: closed dot at −2, arrow goes right</li>
+        <li>x < −15: open dot at −15, arrow goes left</li>
+        <li>"Trail rides begin at $19.99" → x ≥ $19.99</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 3-2</div>
+      <h4>Adding & Subtracting Inequalities</h4>
+      <p class="concept">Same process as solving equations — add or subtract from both sides. The inequality sign doesn't change!</p>
+      <div class="alert-box">⭐ Always read the VARIABLE FIRST when writing/graphing your answer!</div>
+      <ul class="key-points">
+        <li>x − 15 > −12 → add 15 to both sides → x > 3</li>
+        <li>x − 15 ≥ −12 → same steps → x ≥ 3 (same process!)</li>
+        <li>10 ≥ x − 3 → add 3 → 13 ≥ x → READ: x ≤ 13 (variable first!)</li>
+        <li>y − 11 ≥ −2 → add 11 → y ≥ 9</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 3-3</div>
+      <h4>Multiplying & Dividing Inequalities</h4>
+      <p class="concept">Same as equations, BUT there's one BIG rule to remember:</p>
+      <div class="formula-box">⚠️ When you multiply or divide by a NEGATIVE number → FLIP the inequality sign!</div>
+      <ul class="key-points">
+        <li>x/3 &lt; −2 → multiply by 3 → x &lt; −6 (positive, no flip)</li>
+        <li>x/5 ≤ 4 → multiply by 5 → x ≤ 20 (positive, no flip)</li>
+        <li>−4y ≤ 63 → divide by −4 → y ≥ −7 (FLIP! negative divisor)</li>
+        <li>−6x ≥ 30 → divide by −6 → x ≤ −5 (FLIP! negative divisor)</li>
+        <li>Only flip when you × or ÷ by a negative — doesn't matter if answer is negative</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 3-4</div>
+      <h4>Multi-Step Inequalities</h4>
+      <p class="concept">Combine everything you know. Follow these steps every time.</p>
+      <ul class="key-points">
+        <li><strong>Steps:</strong> ① Distribute &nbsp; ② Combine like terms &nbsp; ③ Move constants &nbsp; ④ Divide/multiply &nbsp; ⑤ Graph — READ VARIABLE FIRST!</li>
+        <li>9 + 4t > 21 → 4t > 12 → t > 3 (open dot, right)</li>
+        <li>38 ≤ 2(4y+7) → distribute → 38 ≤ 8y+14 → 24 ≤ 8y → 3 ≤ y → y ≥ 3</li>
+        <li>−6x − 7 ≤ 17 → −6x ≤ 24 → x ≥ −4 (FLIP! divided by −6)</li>
+        <li>6x − 1 > 3x + 8 → 3x > 9 → x > 3</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 3-6</div>
+      <h4>Compound Inequalities</h4>
+      <p class="concept">Two inequalities combined into one. AND = both must be true (between two numbers). OR = either one can be true (goes in two directions).</p>
+      <ul class="key-points">
+        <li>AND problems: −3 ≤ m − 4 &lt; −1 → solve both sides → 1 ≤ m &lt; 3</li>
+        <li>OR problems: solve each inequality separately, then combine</li>
+        <li>Graph AND: closed/open segment between two numbers</li>
+        <li>Graph OR: two arrows going in opposite directions</li>
+        <li>−7 &lt; 3y − 4 &lt; 14 → add 4 to all parts → −3 &lt; 3y &lt; 18 → −1 &lt; y &lt; 6</li>
+      </ul>
+    </div>
+
+    <div class="note-card full">
+      <div class="section-num">Section 3-7</div>
+      <h4>Absolute Value Equations & Inequalities</h4>
+      <p class="concept">Absolute value = distance from zero. ALWAYS positive! When you solve, you get TWO answers — a positive AND a negative version.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;">
+        <div>
+          <div class="formula-box" style="margin-bottom:10px;">|x| = 4 → x = 4 OR x = −4</div>
+          <ul class="key-points">
+            <li>|3x − 1| = 8 → split: 3x−1=8 AND 3x−1=−8</li>
+            <li>→ x = 3 AND x = −7/3</li>
+            <li>Get absolute value ALONE first, then split</li>
+            <li>|x| + 2 = 9 → |x| = 7 → x = 7 or x = −7</li>
+            <li>Absolute value CANNOT equal a negative → NO SOLUTION</li>
+          </ul>
+        </div>
+        <div>
+          <div class="formula-box" style="margin-bottom:10px;">|AV| &lt; # → AND problem &nbsp;|&nbsp; |AV| &gt; # → OR problem</div>
+          <ul class="key-points">
+            <li>|n − 1| &lt; 2 → AND: n−1&lt;2 AND n−1&gt;−2 → −1&lt;n&lt;3</li>
+            <li>|8x| ≥ 24 → OR: 8x≥24 OR 8x≤−24 → x≥3 OR x≤−3</li>
+            <li>|2x+4| ≥ 5 → OR problem → x ≥ ½ OR x ≤ −9/2</li>
+            <li>To split OR: change the number, flip the sign on the second one</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- QUIZ -->
+  <div class="section-header"><h2>Chapter 3 Practice Quiz</h2><div class="bar"></div></div>
+  <div class="quiz-container">
+    <div class="quiz-header">
+      <h3>15-Question Check</h3>
+      <div class="quiz-progress" id="qProgress">Question 1 of 15</div>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="qBar" style="width:6.67%"></div></div>
+    <div id="quizMain">
+
+      <div class="question-block active" id="q1">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">Which symbol means "less than or equal to"?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',1)">A) &lt;</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',1)">B) &gt;</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',1)">C) ≤</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',1)">D) ≥</button>
+        </div>
+        <div class="feedback-msg" id="fb1"></div>
+      </div>
+
+      <div class="question-block" id="q2">
+        <div class="question-type-label">True / False</div>
+        <div class="question-text">For an inequality like x > 7, you use an OPEN dot on the number line.</div>
+        <div class="tf-row">
+          <button class="tf-btn true-btn" onclick="checkTF(this,true,2)">True</button>
+          <button class="tf-btn false-btn" onclick="checkTF(this,false,2)">False</button>
+        </div>
+        <div class="feedback-msg" id="fb2"></div>
+      </div>
+
+      <div class="question-block" id="q3">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">Solve: x − 15 > −12. What is x?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',3)">A) x &gt; −27</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',3)">B) x &gt; 3</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',3)">C) x &lt; 3</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',3)">D) x &gt; 27</button>
+        </div>
+        <div class="feedback-msg" id="fb3"></div>
+      </div>
+
+      <div class="question-block" id="q4">
+        <div class="question-type-label">True / False</div>
+        <div class="question-text">When you divide both sides of an inequality by a negative number, you must FLIP the inequality sign.</div>
+        <div class="tf-row">
+          <button class="tf-btn true-btn" onclick="checkTF(this,true,4)">True</button>
+          <button class="tf-btn false-btn" onclick="checkTF(this,false,4)">False</button>
+        </div>
+        <div class="feedback-msg" id="fb4"></div>
+      </div>
+
+      <div class="question-block" id="q5">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">Solve: −6x ≥ 30. What is x?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',5)">A) x ≥ −5</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',5)">B) x ≤ 5</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',5)">C) x ≤ −5</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',5)">D) x ≥ 5</button>
+        </div>
+        <div class="feedback-msg" id="fb5"></div>
+      </div>
+
+      <div class="question-block" id="q6">
+        <div class="question-type-label">Fill in the Answer</div>
+        <div class="question-text">Solve: 9 + 4t > 21. What is t? (Write as: t > #)</div>
+        <div class="fill-row"><input class="fill-input" id="fi6" placeholder="t > ?"/><button class="submit-btn" onclick="checkFill('fi6',['t>3'],6,'t > 3')">Check</button></div>
+        <div class="feedback-msg" id="fb6"></div>
+      </div>
+
+      <div class="question-block" id="q7">
+        <div class="question-type-label">True / False</div>
+        <div class="question-text">A compound AND inequality means both conditions must be true at the same time.</div>
+        <div class="tf-row">
+          <button class="tf-btn true-btn" onclick="checkTF(this,true,7)">True</button>
+          <button class="tf-btn false-btn" onclick="checkTF(this,false,7)">False</button>
+        </div>
+        <div class="feedback-msg" id="fb7"></div>
+      </div>
+
+      <div class="question-block" id="q8">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">What is |−7|?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',8)">A) −7</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',8)">B) 7</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',8)">C) 0</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',8)">D) 49</button>
+        </div>
+        <div class="feedback-msg" id="fb8"></div>
+      </div>
+
+      <div class="question-block" id="q9">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">Solve: |x| = 4. What are the solutions?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',9)">A) x = 4 only</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',9)">B) x = 4 or x = −4</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',9)">C) x = −4 only</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',9)">D) No solution</button>
+        </div>
+        <div class="feedback-msg" id="fb9"></div>
+      </div>
+
+      <div class="question-block" id="q10">
+        <div class="question-type-label">True / False</div>
+        <div class="question-text">Absolute value can equal a negative number.</div>
+        <div class="tf-row">
+          <button class="tf-btn true-btn" onclick="checkTF(this,false,10)">True</button>
+          <button class="tf-btn false-btn" onclick="checkTF(this,true,10)">False</button>
+        </div>
+        <div class="feedback-msg" id="fb10"></div>
+      </div>
+
+      <div class="question-block" id="q11">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">Solve: 2x + 1 > −3. What is x?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',11)">A) x &gt; −2</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',11)">B) x &lt; −2</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',11)">C) x &gt; 2</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',11)">D) x &lt; 2</button>
+        </div>
+        <div class="feedback-msg" id="fb11"></div>
+      </div>
+
+      <div class="question-block" id="q12">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">For |AV| > # (greater than), you create an ___ problem.</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',12)">A) AND</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',12)">B) OR</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',12)">C) NEITHER</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',12)">D) BOTH</button>
+        </div>
+        <div class="feedback-msg" id="fb12"></div>
+      </div>
+
+      <div class="question-block" id="q13">
+        <div class="question-type-label">Fill in the Answer</div>
+        <div class="question-text">For x ≥ −4, what kind of dot goes on the number line? (open or closed)</div>
+        <div class="fill-row"><input class="fill-input" id="fi13" placeholder="Type answer"/><button class="submit-btn" onclick="checkFill('fi13',['closed'],13)">Check</button></div>
+        <div class="feedback-msg" id="fb13"></div>
+      </div>
+
+      <div class="question-block" id="q14">
+        <div class="question-type-label">True / False</div>
+        <div class="question-text">When solving a multi-step inequality, you should distribute BEFORE combining like terms.</div>
+        <div class="tf-row">
+          <button class="tf-btn true-btn" onclick="checkTF(this,true,14)">True</button>
+          <button class="tf-btn false-btn" onclick="checkTF(this,false,14)">False</button>
+        </div>
+        <div class="feedback-msg" id="fb14"></div>
+      </div>
+
+      <div class="question-block" id="q15">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">Solve: −4y ≤ 63 (divide by −4). What happens to the sign?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',15)">A) Stays the same → y ≤ −7</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',15)">B) Flips → y ≥ −7</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',15)">C) Becomes = sign</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',15)">D) Disappears</button>
+        </div>
+        <div class="feedback-msg" id="fb15"></div>
+      </div>
+
+    </div>
+    <div class="quiz-results" id="quizResults">
+      <div class="result-score" id="finalScore"></div>
+      <div class="result-label">out of 15</div>
+      <div class="result-msg" id="resultMsg"></div>
+      <button class="restart-btn" onclick="restartQuiz()">Try Again</button>
+    </div>
+    <div class="quiz-nav" id="quizNav">
+      <button class="nav-btn" id="prevBtn" onclick="navQuiz(-1)" disabled>← Prev</button>
+      <div class="score-display" id="scoreTally">Score: 0</div>
+      <button class="nav-btn" id="nextBtn" onclick="navQuiz(1)">Next →</button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div class="section-header"><h2>Inequality Blitz 🎮</h2><div class="bar"></div></div>
+  <div class="game-container">
+    <h3>Chapter 3 Sprint <span class="level-badge" id="levelBadge">Level 1</span></h3>
+    <p class="game-subtitle">10 seconds per question. Build your streak for bonus points! 20 questions total.</p>
+    <div class="game-stats">
+      <div class="stat-box"><div class="stat-num" id="gScore">0</div><div class="stat-label">Score</div></div>
+      <div class="stat-box"><div class="stat-num" id="gStreak">0</div><div class="stat-label">🔥 Streak</div></div>
+      <div class="stat-box"><div class="stat-num" id="gCorrect">0</div><div class="stat-label">Correct</div></div>
+      <div class="stat-box"><div class="stat-num" id="gQ">0</div><div class="stat-label">Done</div></div>
+    </div>
+    <div class="timer-bar-wrap"><div class="timer-bar" id="timerBar" style="width:100%"></div></div>
+    <div class="game-board" id="gameBoard">
+      <div style="text-align:center;padding:20px 0;">
+        <p style="color:#ccc;font-size:15px;margin-bottom:20px;">Test your inequality skills!</p>
+        <button class="play-again-btn" onclick="startGame()" style="font-size:16px;padding:16px 40px;">Start Game 🚀</button>
+      </div>
+    </div>
+    <div class="game-feedback" id="gameFeedback"></div>
+    <div class="game-over-panel" id="gameOverPanel">
+      <div class="game-over-score" id="goScore"></div>
+      <div class="game-over-msg" id="goMsg"></div>
+      <button class="play-again-btn" onclick="startGame()">Play Again 🔄</button>
+    </div>
+  </div>
+  <p class="footer-note">Snohomish Panthers &nbsp;·&nbsp; Math 3 &nbsp;·&nbsp; Chapter 3</p>
+</div>
+
+<script>
+let currentQ=1,totalQ=15,quizScore=0,answered=new Array(16).fill(false);
+const mcAnswers={1:'C',3:'B',5:'C',8:'B',9:'B',11:'A',12:'B',15:'B'};
+const tfAnswers={2:true,4:true,7:true,10:false,14:true};
+
+function checkMC(btn,choice,qNum){
+  if(answered[qNum])return;answered[qNum]=true;
+  const btns=btn.closest('.choices').querySelectorAll('.choice-btn');btns.forEach(b=>b.disabled=true);
+  const fb=document.getElementById('fb'+qNum);
+  if(choice===mcAnswers[qNum]){btn.classList.add('correct');quizScore++;showFB(fb,true,'✅ Correct!');}
+  else{btn.classList.add('wrong');const cb=[...btns].find(b=>b.textContent.startsWith(mcAnswers[qNum]));if(cb)cb.classList.add('correct');showFB(fb,false,'❌ Not quite — check the notes!');}
+  updateScore();
+}
+function checkTF(btn,isTrue,qNum){
+  if(answered[qNum])return;answered[qNum]=true;
+  const btns=btn.closest('.tf-row').querySelectorAll('.tf-btn');btns.forEach(b=>b.disabled=true);
+  const correct=tfAnswers[qNum];const userTrue=btn.classList.contains('true-btn');
+  const fb=document.getElementById('fb'+qNum);
+  if(userTrue===correct){btn.classList.add('correct');quizScore++;showFB(fb,true,'✅ Correct!');}
+  else{btn.classList.add('wrong');const cb=correct?btn.closest('.tf-row').querySelector('.true-btn'):btn.closest('.tf-row').querySelector('.false-btn');if(cb)cb.classList.add('correct');showFB(fb,false,'❌ Not quite — check the notes!');}
+  updateScore();
+}
+function checkFill(inputId,accepted,qNum,display){
+  if(answered[qNum])return;answered[qNum]=true;
+  const input=document.getElementById(inputId);
+  const val=input.value.trim().replace(/\s+/g,'').toLowerCase();
+  const ok=accepted.map(a=>a.replace(/\s+/g,'').toLowerCase()).includes(val);
+  const fb=document.getElementById('fb'+qNum);input.disabled=true;
+  if(ok){input.classList.add('correct');quizScore++;showFB(fb,true,'✅ Correct!');}
+  else{input.classList.add('wrong');showFB(fb,false,'❌ Answer: '+(display||accepted[0]));}
+  updateScore();
+}
+function showFB(el,good,msg){el.textContent=msg;el.className='feedback-msg show '+(good?'good':'bad');}
+function updateScore(){document.getElementById('scoreTally').textContent='Score: '+quizScore;}
+function navQuiz(dir){
+  document.getElementById('q'+currentQ).classList.remove('active');
+  currentQ=Math.max(1,Math.min(totalQ,currentQ+dir));
+  document.getElementById('q'+currentQ).classList.add('active');
+  document.getElementById('qProgress').textContent='Question '+currentQ+' of '+totalQ;
+  document.getElementById('qBar').style.width=((currentQ/totalQ)*100)+'%';
+  document.getElementById('prevBtn').disabled=currentQ===1;
+  const nb=document.getElementById('nextBtn');
+  if(currentQ===totalQ){nb.textContent='Finish';nb.onclick=()=>showResults();}
+  else{nb.textContent='Next →';nb.onclick=()=>navQuiz(1);}
+}
+function showResults(){
+  document.getElementById('quizMain').style.display='none';document.getElementById('quizNav').style.display='none';
+  document.getElementById('quizResults').classList.add('show');document.getElementById('finalScore').textContent=quizScore;
+  const pct=Math.round((quizScore/totalQ)*100);
+  document.getElementById('resultMsg').textContent=pct>=90?'🏆 Excellent! Chapter 3 mastered.':pct>=70?'💪 Good work! Review any you missed.':'📚 Keep studying — check the notes!';
+}
+function restartQuiz(){
+  currentQ=1;quizScore=0;answered=new Array(16).fill(false);
+  document.getElementById('quizMain').style.display='';document.getElementById('quizNav').style.display='';
+  document.getElementById('quizResults').classList.remove('show');
+  for(let i=1;i<=totalQ;i++){
+    const b=document.getElementById('q'+i);b.classList.remove('active');
+    b.querySelectorAll('button').forEach(x=>{x.disabled=false;x.className=x.className.replace(/correct|wrong/g,'').trim();});
+    b.querySelectorAll('input').forEach(x=>{x.disabled=false;x.value='';x.className='fill-input';});
+    const fb=document.getElementById('fb'+i);if(fb)fb.className='feedback-msg';
+  }
+  document.getElementById('q1').classList.add('active');
+  document.getElementById('qProgress').textContent='Question 1 of 15';
+  document.getElementById('qBar').style.width='6.67%';
+  document.getElementById('prevBtn').disabled=true;
+  document.getElementById('nextBtn').textContent='Next →';document.getElementById('nextBtn').onclick=()=>navQuiz(1);
+  updateScore();
+}
+
+let gScore=0,gStreak=0,gCorrect=0,gQCount=0,gTimer=null,gTimeLeft=10,gAnswered=false,gameQueue=[],currentGame=null;
+const MAX_Q=20;
+const gameBank=[
+  {q:'< means:',a:'less than',opts:['less than','greater than','less than or equal','equal']},
+  {q:'> means:',a:'greater than',opts:['greater than','less than','not equal','greater or equal']},
+  {q:'≤ uses a ___ dot on number line.',a:'closed',opts:['closed','open','no dot','dashed']},
+  {q:'> uses a ___ dot on number line.',a:'open',opts:['open','closed','solid','filled']},
+  {q:'Solve: x + 3 > 10',a:'x > 7',opts:['x > 7','x > 13','x < 7','x > 3']},
+  {q:'Solve: x − 5 ≤ 8',a:'x ≤ 13',opts:['x ≤ 13','x ≤ 3','x ≥ 13','x < 3']},
+  {q:'Solve: −3x < 9',a:'x > −3',opts:['x > −3','x < −3','x < 3','x > 3']},
+  {q:'|−7| = ?',a:'7',opts:['7','−7','0','49']},
+  {q:'|x| = 5 gives:',a:'x=5 or x=−5',opts:['x=5 or x=−5','x=5 only','x=−5 only','no solution']},
+  {q:'Can |x| = −3?',a:'No — no solution',opts:['No — no solution','Yes, x=3','Yes, x=−3','Yes, x=±3']},
+  {q:'Solve: 2x + 4 > 10',a:'x > 3',opts:['x > 3','x > 7','x < 3','x > 5']},
+  {q:'Compound AND means:',a:'both must be true',opts:['both must be true','either can be true','neither','opposite']},
+  {q:'Solve: 9 + 4t > 21',a:'t > 3',opts:['t > 3','t > 12','t < 3','t > 4']},
+  {q:'Dividing by negative: flip or keep the sign?',a:'flip',opts:['flip','keep','remove','double']},
+  {q:'Solve: −2x ≥ 8',a:'x ≤ −4',opts:['x ≤ −4','x ≥ −4','x ≤ 4','x ≥ 4']},
+  {q:'Greater than (>) → arrow points:',a:'right',opts:['right','left','both ways','neither']},
+  {q:'Less than (<) → arrow points:',a:'left',opts:['left','right','up','down']},
+  {q:'|AV| < # creates an ___ problem',a:'AND',opts:['AND','OR','NEITHER','BOTH']},
+  {q:'|AV| > # creates an ___ problem',a:'OR',opts:['OR','AND','NEITHER','BOTH']},
+  {q:'Solve: −6x ≥ 30',a:'x ≤ −5',opts:['x ≤ −5','x ≥ −5','x ≤ 5','x ≥ 5']},
+];
+function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
+function startGame(){
+  gScore=0;gStreak=0;gCorrect=0;gQCount=0;gameQueue=shuffle(gameBank);
+  document.getElementById('gameOverPanel').classList.remove('show');document.getElementById('gameFeedback').className='game-feedback';
+  updateGStats();nextGQ();
+}
+function nextGQ(){
+  if(gQCount>=MAX_Q){endGame();return;}
+  gAnswered=false;currentGame=gameQueue[gQCount%gameQueue.length];gQCount++;
+  const lvl=gStreak>=10?'🔥 On Fire':gStreak>=5?'Expert':gStreak>=3?'Pro':'Level 1';
+  document.getElementById('levelBadge').textContent=lvl;
+  const opts=shuffle(currentGame.opts);
+  let html=`<div class="game-question">${currentGame.q}</div><div class="game-choices">`;
+  opts.forEach(o=>{html+=`<button class="game-choice" onclick="answerG(this,${JSON.stringify(o)})">${o}</button>`;});
+  html+='</div>';document.getElementById('gameBoard').innerHTML=html;startTimer();
+}
+function answerG(btn,choice){
+  if(gAnswered)return;gAnswered=true;clearInterval(gTimer);
+  const btns=document.querySelectorAll('.game-choice');btns.forEach(b=>b.disabled=true);
+  const fb=document.getElementById('gameFeedback');
+  if(choice===currentGame.a){
+    btn.classList.add('correct');gStreak++;gCorrect++;const bonus=gStreak>=5?2:1;gScore+=10*bonus;
+    fb.textContent=gStreak>=5?`🔥 +${10*bonus} — Streak x${gStreak}!`:'✅ Correct! +10';fb.className='game-feedback show good';
+  }else{
+    btn.classList.add('wrong');const cb=[...btns].find(b=>b.textContent===currentGame.a);if(cb)cb.classList.add('correct');
+    gStreak=0;fb.textContent='❌ Answer: '+currentGame.a;fb.className='game-feedback show bad';
+  }
+  updateGStats();setTimeout(nextGQ,1300);
+}
+function startTimer(){
+  gTimeLeft=10;document.getElementById('timerBar').style.width='100%';clearInterval(gTimer);
+  gTimer=setInterval(()=>{
+    gTimeLeft-=0.1;document.getElementById('timerBar').style.width=Math.max(0,(gTimeLeft/10)*100)+'%';
+    if(gTimeLeft<=0){clearInterval(gTimer);if(!gAnswered){gAnswered=true;gStreak=0;document.querySelectorAll('.game-choice').forEach(b=>b.disabled=true);const fb=document.getElementById('gameFeedback');fb.textContent='⏱️ Time\'s up! Answer: '+currentGame.a;fb.className='game-feedback show bad';updateGStats();setTimeout(nextGQ,1300);}}
+  },100);
+}
+function updateGStats(){document.getElementById('gScore').textContent=gScore;document.getElementById('gStreak').textContent=gStreak;document.getElementById('gCorrect').textContent=gCorrect;document.getElementById('gQ').textContent=gQCount;}
+function endGame(){
+  clearInterval(gTimer);document.getElementById('gameBoard').innerHTML='';document.getElementById('gameFeedback').className='game-feedback';
+  document.getElementById('gameOverPanel').classList.add('show');document.getElementById('goScore').textContent=gScore+' pts';
+  const pct=Math.round((gCorrect/MAX_Q)*100);
+  document.getElementById('goMsg').textContent=(pct>=90?'🏆 Panther Legend!':pct>=70?'💪 Solid work!':'📚 Keep practicing!')+` (${gCorrect}/${MAX_Q} correct)`;
+}
+</script>
+</body>
+</html>

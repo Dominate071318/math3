@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+  :root{--red:#cc0000;--black:#111111;--white:#ffffff;--gray:#f2f2f2;--mid:#e0e0e0;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--black);}
+  .hero{background:var(--black);color:var(--white);padding:52px 40px 44px;position:relative;overflow:hidden;}
+  .hero::before{content:'x y = // ×';position:absolute;top:12px;right:30px;font-size:13px;letter-spacing:10px;opacity:0.08;font-family:'DM Serif Display',serif;}
+  .hero-label{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:14px;}
+  .hero h1{font-family:'DM Serif Display',serif;font-size:48px;line-height:1.1;margin-bottom:10px;}
+  .hero h1 em{font-style:italic;color:var(--red);}
+  .hero-sub{font-size:15px;font-weight:300;opacity:0.7;margin-top:8px;}
+  .page-body{max-width:900px;margin:0 auto;padding:44px 32px 60px;}
+  .back-link{display:inline-flex;align-items:center;gap:8px;color:var(--red);font-size:13px;font-weight:600;text-decoration:none;margin-bottom:32px;letter-spacing:1px;text-transform:uppercase;}
+  .section-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;margin-top:48px;}
+  .section-header h2{font-family:'DM Serif Display',serif;font-size:28px;white-space:nowrap;}
+  .section-header .bar{flex:1;height:2px;background:var(--red);opacity:0.3;}
+  .notes-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:40px;}
+  .note-card{background:var(--white);border-radius:8px;border-top:3px solid var(--red);padding:22px 24px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
+  .note-card.full{grid-column:1/-1;}
+  .note-card .section-num{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:6px;}
+  .note-card h4{font-family:'DM Serif Display',serif;font-size:17px;margin-bottom:12px;}
+  .note-card .concept{font-size:13px;color:#555;line-height:1.6;font-weight:300;margin-bottom:10px;}
+  .formula-box{background:var(--black);color:var(--white);border-radius:6px;padding:10px 14px;font-size:14px;font-weight:500;text-align:center;margin-top:10px;font-family:'DM Serif Display',serif;}
+  .alert-box{background:#fff3cd;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:10px 14px;margin-top:12px;font-size:13px;font-weight:500;color:#92400e;}
+  .steps-box{background:var(--gray);border-radius:6px;padding:14px 16px;margin-top:12px;}
+  .steps-box .step{font-size:13px;color:#333;margin-bottom:6px;font-weight:400;}
+  .steps-box .step span{display:inline-block;width:20px;height:20px;background:var(--red);color:var(--white);border-radius:50%;font-size:11px;font-weight:700;text-align:center;line-height:20px;margin-right:8px;}
+  .key-points{margin-top:12px;}
+  .key-points li{font-size:13px;color:#444;margin-bottom:6px;padding-left:16px;position:relative;list-style:none;font-weight:300;}
+  .key-points li::before{content:'→';position:absolute;left:0;color:var(--red);font-size:12px;}
+  .quiz-container{background:var(--white);border-radius:8px;padding:36px;margin-bottom:40px;box-shadow:0 2px 12px rgba(0,0,0,0.05);}
+  .quiz-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+  .quiz-header h3{font-family:'DM Serif Display',serif;font-size:22px;}
+  .quiz-progress{font-size:13px;color:#888;font-weight:500;}
+  .progress-bar-wrap{height:4px;background:var(--mid);border-radius:2px;margin-bottom:28px;}
+  .progress-bar-fill{height:100%;background:var(--red);border-radius:2px;transition:width 0.4s;}
+  .question-block{display:none;}.question-block.active{display:block;}
+  .question-type-label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:8px;}
+  .question-text{font-size:16px;font-weight:500;margin-bottom:20px;line-height:1.5;}
+  .choices{display:flex;flex-direction:column;gap:10px;}
+  .choice-btn{background:var(--gray);border:2px solid transparent;border-radius:6px;padding:14px 18px;text-align:left;cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;transition:all 0.15s;color:var(--black);}
+  .choice-btn:hover{border-color:var(--black);background:var(--white);}
+  .choice-btn.correct{background:#e8f5e9;border-color:#2e7d32;color:#1b5e20;}
+  .choice-btn.wrong{background:#ffebee;border-color:var(--red);color:#b71c1c;}
+  .choice-btn:disabled{cursor:default;}
+  .tf-row{display:flex;gap:12px;}
+  .tf-btn{flex:1;padding:16px;border-radius:6px;border:2px solid transparent;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--black);transition:all 0.15s;}
+  .tf-btn:hover{border-color:var(--black);}
+  .tf-btn.correct{background:#e8f5e9;border-color:#2e7d32;color:#1b5e20;}
+  .tf-btn.wrong{background:#ffebee;border-color:var(--red);color:#b71c1c;}
+  .tf-btn:disabled{cursor:default;}
+  .fill-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .fill-input{flex:1;min-width:120px;padding:12px 16px;border:2px solid var(--mid);border-radius:6px;font-size:16px;font-family:'DM Sans',sans-serif;outline:none;}
+  .fill-input:focus{border-color:var(--black);}
+  .fill-input.correct{border-color:#2e7d32;background:#e8f5e9;}
+  .fill-input.wrong{border-color:var(--red);background:#ffebee;}
+  .submit-btn{background:var(--black);color:var(--white);border:none;border-radius:6px;padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+  .submit-btn:hover{background:var(--red);}
+  .feedback-msg{margin-top:14px;font-size:14px;font-weight:500;padding:10px 14px;border-radius:6px;display:none;}
+  .feedback-msg.show{display:block;}
+  .feedback-msg.good{background:#e8f5e9;color:#1b5e20;}
+  .feedback-msg.bad{background:#ffebee;color:#b71c1c;}
+  .quiz-nav{display:flex;justify-content:space-between;align-items:center;margin-top:28px;flex-wrap:wrap;gap:12px;}
+  .nav-btn{background:var(--black);color:var(--white);border:none;border-radius:6px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+  .nav-btn:hover{background:var(--red);}
+  .nav-btn:disabled{opacity:0.3;cursor:default;background:var(--black);}
+  .score-display{font-size:14px;font-weight:600;color:#555;}
+  .quiz-results{display:none;text-align:center;padding:20px 0;}
+  .quiz-results.show{display:block;}
+  .result-score{font-family:'DM Serif Display',serif;font-size:64px;color:var(--red);line-height:1;margin-bottom:8px;}
+  .result-label{font-size:16px;color:#555;margin-bottom:16px;}
+  .result-msg{font-size:15px;font-weight:500;margin-bottom:24px;}
+  .restart-btn{background:var(--red);color:var(--white);border:none;border-radius:6px;padding:14px 32px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+  .game-container{background:var(--black);border-radius:8px;padding:36px;margin-bottom:40px;}
+  .game-container h3{font-family:'DM Serif Display',serif;font-size:22px;color:var(--white);margin-bottom:6px;}
+  .game-subtitle{font-size:13px;color:#aaa;margin-bottom:24px;}
+  .game-stats{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
+  .stat-box{background:rgba(255,255,255,0.07);border-radius:6px;padding:12px 20px;text-align:center;min-width:75px;}
+  .stat-num{font-size:24px;font-weight:700;color:var(--red);line-height:1;}
+  .stat-label{font-size:10px;color:#aaa;margin-top:4px;letter-spacing:1px;text-transform:uppercase;}
+  .timer-bar-wrap{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin-bottom:16px;}
+  .timer-bar{height:100%;background:var(--red);border-radius:2px;transition:width 0.1s linear;}
+  .game-board{background:rgba(255,255,255,0.05);border-radius:8px;padding:24px;margin-bottom:16px;min-height:120px;}
+  .game-question{font-size:17px;color:var(--white);font-weight:500;margin-bottom:20px;line-height:1.5;}
+  .game-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .game-choice{background:rgba(255,255,255,0.1);border:2px solid transparent;border-radius:6px;padding:14px;color:var(--white);font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;text-align:center;}
+  .game-choice:hover{border-color:var(--red);background:rgba(204,0,0,0.2);}
+  .game-choice.correct{background:rgba(46,125,50,0.3);border-color:#4caf50;}
+  .game-choice.wrong{background:rgba(204,0,0,0.3);border-color:var(--red);}
+  .game-choice:disabled{cursor:default;}
+  .game-feedback{font-size:14px;color:var(--white);padding:10px 14px;border-radius:6px;display:none;margin-bottom:12px;}
+  .game-feedback.show{display:block;}
+  .game-feedback.good{background:rgba(46,125,50,0.3);}
+  .game-feedback.bad{background:rgba(204,0,0,0.3);}
+  .level-badge{display:inline-block;background:var(--red);color:var(--white);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:12px;margin-left:8px;}
+  .game-over-panel{display:none;text-align:center;padding:20px;}
+  .game-over-panel.show{display:block;}
+  .game-over-score{font-family:'DM Serif Display',serif;font-size:56px;color:var(--red);}
+  .game-over-msg{color:#ccc;font-size:15px;margin:12px 0 24px;}
+  .play-again-btn{background:var(--red);color:var(--white);border:none;border-radius:6px;padding:14px 32px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+  .footer-note{text-align:center;font-size:12px;color:#aaa;margin-top:48px;font-weight:300;letter-spacing:1px;}
+  @media(max-width:640px){.notes-grid,.game-choices{grid-template-columns:1fr;}.hero h1{font-size:34px;}}
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="hero-label">Snohomish High School · Math 3</div>
+  <h1><em>Chapter 6</em><br>Systems of Equations</h1>
+  <p class="hero-sub">Mr. Solbakken &nbsp;·&nbsp; 2025–26</p>
+</div>
+<div class="page-body">
+  <a class="back-link" href="index.html">← Back to Course Home</a>
+  <div class="section-header"><h2>Chapter 6 Notes</h2><div class="bar"></div></div>
+  <div class="notes-grid">
+
+    <div class="note-card">
+      <div class="section-num">Section 6-1</div>
+      <h4>Graphing Systems of Equations</h4>
+      <p class="concept">A system of equations is TWO equations. The solution is the point where both lines CROSS — the (x, y) coordinate they share.</p>
+      <div class="formula-box">3 Methods: Graphing · Substitution · Elimination</div>
+      <ul class="key-points">
+        <li>Put both equations in slope-intercept form (y = mx + b)</li>
+        <li>Graph both lines — where they cross is the SOLUTION</li>
+        <li>Write the solution as an ordered pair (x, y)</li>
+        <li>Same slope = PARALLEL = NO SOLUTION (lines never meet)</li>
+        <li>Check: plug your answer into BOTH equations — must work in both!</li>
+        <li>Example: y=x+2 and y=3x−2 → cross at (2, 4) → Solution: (2, 4)</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 6-2</div>
+      <h4>Substitution Method</h4>
+      <p class="concept">One equation is already solved for x or y? Plug that expression into the other equation! This is the fastest way when one variable is already isolated.</p>
+      <div class="steps-box">
+        <div class="step"><span>1</span>Get one equation equal to x or y</div>
+        <div class="step"><span>2</span>Substitute (replace) into the other equation</div>
+        <div class="step"><span>3</span>Solve for the variable you get</div>
+        <div class="step"><span>4</span>Plug that value back in to find the other variable</div>
+        <div class="step"><span>5</span>Write solution as (x, y)</div>
+      </div>
+      <ul class="key-points">
+        <li>y=3x and x+y=−32 → x+3x=−32 → 4x=−32 → x=−8 → y=−24 → (−8,−24)</li>
+        <li>y=2x+7 and y=x−1 → 2x+7=x−1 → x=−8 → y=−9 → (−8,−9)</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 6-3 Part 1</div>
+      <h4>Elimination Method</h4>
+      <p class="concept">Line the equations up in columns. Add them together to ELIMINATE one variable. Then solve for what's left!</p>
+      <div class="steps-box">
+        <div class="step"><span>1</span>Line equations up in columns</div>
+        <div class="step"><span>2</span>Add/subtract to eliminate one variable</div>
+        <div class="step"><span>3</span>Solve for the remaining variable</div>
+        <div class="step"><span>4</span>Plug back in to find the other variable</div>
+        <div class="step"><span>5</span>Write solution as (x, y)</div>
+      </div>
+      <ul class="key-points">
+        <li>5x−6y=−32 AND 3x+6y=48 → add them → 8x=16 → x=2 → plug in → y=7 → (2,7)</li>
+        <li>Can't eliminate? Multiply one equation by −1 to flip the signs</li>
+        <li>3x+2y=−15 AND x−2y=19 → add → 4x=4 → x=1 → y=−9 → (1,−9)</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 6-3 Part 2</div>
+      <h4>More Elimination (Multiply First)</h4>
+      <p class="concept">When you can't eliminate right away — multiply one or BOTH equations by a number to create matching coefficients, then eliminate!</p>
+      <ul class="key-points">
+        <li>Ask: what can I multiply by to get one value to eliminate?</li>
+        <li>−2x+15y=−32 AND 7x−6y=17 → multiply 2nd by 3 → 21x−18y=51 → then multiply 1st by 7 → add!</li>
+        <li>May need to multiply BOTH equations</li>
+        <li>5x+3y=26 AND −2x+7y=6 → multiply: 5x×2=10x, 2x×5=10x → eliminate!</li>
+        <li>Solution: (4, 2)</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 6-5</div>
+      <h4>Linear Inequalities (Graphing)</h4>
+      <p class="concept">Graph like a regular equation, but shade one side. Ask yourself two questions on EVERY problem!</p>
+      <div class="alert-box">⭐ Ask every time: ① Solid or dashed line? ② Which side is shaded?</div>
+      <ul class="key-points">
+        <li>< or > → DASHED line (not included)</li>
+        <li>≤ or ≥ → SOLID line (included)</li>
+        <li>To find shading: plug (0,0) into the inequality</li>
+        <li>If TRUE → shade the side where (0,0) is</li>
+        <li>If FALSE → shade the OTHER side (without (0,0))</li>
+        <li>y > x−2: dashed, test (0,0): 0>−2 TRUE → shade where (0,0) is (above line)</li>
+      </ul>
+    </div>
+
+    <div class="note-card">
+      <div class="section-num">Section 6-6</div>
+      <h4>Systems of Linear Inequalities</h4>
+      <p class="concept">Graph TWO inequalities on the same graph. Shade each one, then the OVERLAP (where both shadings agree) is the solution!</p>
+      <ul class="key-points">
+        <li>Graph each inequality with its own line (solid or dashed)</li>
+        <li>Shade each one using the (0,0) test</li>
+        <li>The solution is where BOTH shadings overlap</li>
+        <li>Only shade where both lines agree!</li>
+        <li>Example: y &lt; 2x−3 AND y &gt; −2x+2 → graph both, shade overlap region</li>
+        <li>If equations aren't in y=mx+b form, rearrange first!</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- QUIZ -->
+  <div class="section-header"><h2>Chapter 6 Practice Quiz</h2><div class="bar"></div></div>
+  <div class="quiz-container">
+    <div class="quiz-header"><h3>15-Question Check</h3><div class="quiz-progress" id="qProgress">Question 1 of 15</div></div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="qBar" style="width:6.67%"></div></div>
+    <div id="quizMain">
+
+      <div class="question-block active" id="q1">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">What are the 3 methods for solving systems of equations?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',1)">A) Add, Subtract, Multiply</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',1)">B) Graphing, Substitution, Elimination</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',1)">C) Slope, Intercept, Standard</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',1)">D) Linear, Non-linear, Parallel</button>
+        </div>
+        <div class="feedback-msg" id="fb1"></div>
+      </div>
+
+      <div class="question-block" id="q2">
+        <div class="question-type-label">True / False</div>
+        <div class="question-text">The solution to a system of equations is the point where the two lines CROSS.</div>
+        <div class="tf-row">
+          <button class="tf-btn true-btn" onclick="checkTF(this,true,2)">True</button>
+          <button class="tf-btn false-btn" onclick="checkTF(this,false,2)">False</button>
+        </div>
+        <div class="feedback-msg" id="fb2"></div>
+      </div>
+
+      <div class="question-block" id="q3">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">Two lines with the SAME slope have how many solutions?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',3)">A) One solution</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',3)">B) Two solutions</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',3)">C) No solution (parallel)</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',3)">D) Infinite solutions</button>
+        </div>
+        <div class="feedback-msg" id="fb3"></div>
+      </div>
+
+      <div class="question-block" id="q4">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">In substitution, if y = 3x and x + y = −32, what do you plug in?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',4)">A) Replace x with 3y</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',4)">B) Replace y with 3x in the second equation</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',4)">C) Add the equations together</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',4)">D) Multiply both equations</button>
+        </div>
+        <div class="feedback-msg" id="fb4"></div>
+      </div>
+
+      <div class="question-block" id="q5">
+        <div class="question-type-label">True / False</div>
+        <div class="question-text">After finding x in a system, you MUST plug it back in to find y.</div>
+        <div class="tf-row">
+          <button class="tf-btn true-btn" onclick="checkTF(this,true,5)">True</button>
+          <button class="tf-btn false-btn" onclick="checkTF(this,false,5)">False</button>
+        </div>
+        <div class="feedback-msg" id="fb5"></div>
+      </div>
+
+      <div class="question-block" id="q6">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">In elimination, you add the equations to ___ one variable.</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',6)">A) Double</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',6)">B) Eliminate</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',6)">C) Multiply</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',6)">D) Graph</button>
+        </div>
+        <div class="feedback-msg" id="fb6"></div>
+      </div>
+
+      <div class="question-block" id="q7">
+        <div class="question-type-label">Fill in the Answer</div>
+        <div class="question-text">5x − 6y = −32 and 3x + 6y = 48. Add them. What is x?</div>
+        <div class="fill-row"><input class="fill-input" id="fi7" placeholder="x = ?"/><button class="submit-btn" onclick="checkFill('fi7',['2'],7)">Check</button></div>
+        <div class="feedback-msg" id="fb7"></div>
+      </div>
+
+      <div class="question-block" id="q8">
+        <div class="question-type-label">True / False</div>
+        <div class="question-text">For a linear inequality with &lt; or &gt;, the line is DASHED.</div>
+        <div class="tf-row">
+          <button class="tf-btn true-btn" onclick="checkTF(this,true,8)">True</button>
+          <button class="tf-btn false-btn" onclick="checkTF(this,false,8)">False</button>
+        </div>
+        <div class="feedback-msg" id="fb8"></div>
+      </div>
+
+      <div class="question-block" id="q9">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">To find which side to shade for y > x − 2, you plug in:</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',9)">A) Any random point</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',9)">B) The point (0, 0)</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',9)">C) The slope</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',9)">D) The y-intercept</button>
+        </div>
+        <div class="feedback-msg" id="fb9"></div>
+      </div>
+
+      <div class="question-block" id="q10">
+        <div class="question-type-label">True / False</div>
+        <div class="question-text">For ≤ or ≥ inequalities, the line is SOLID.</div>
+        <div class="tf-row">
+          <button class="tf-btn true-btn" onclick="checkTF(this,true,10)">True</button>
+          <button class="tf-btn false-btn" onclick="checkTF(this,false,10)">False</button>
+        </div>
+        <div class="feedback-msg" id="fb10"></div>
+      </div>
+
+      <div class="question-block" id="q11">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">y > x − 2: test (0,0) → 0 > 0 − 2 → 0 > −2. This is TRUE. So you shade:</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',11)">A) The side WITHOUT (0,0)</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',11)">B) The side WHERE (0,0) is</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',11)">C) The entire graph</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',11)">D) Nothing</button>
+        </div>
+        <div class="feedback-msg" id="fb11"></div>
+      </div>
+
+      <div class="question-block" id="q12">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">In a system of linear inequalities, the solution is where:</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',12)">A) The lines are parallel</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',12)">B) The two shadings overlap</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',12)">C) Only one line is shaded</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',12)">D) The lines cross</button>
+        </div>
+        <div class="feedback-msg" id="fb12"></div>
+      </div>
+
+      <div class="question-block" id="q13">
+        <div class="question-type-label">Fill in the Answer</div>
+        <div class="question-text">Using substitution: y = 2x + 7 and y = x − 1. What is x?</div>
+        <div class="fill-row"><input class="fill-input" id="fi13" placeholder="x = ?"/><button class="submit-btn" onclick="checkFill('fi13',['-8','−8'],13)">Check</button></div>
+        <div class="feedback-msg" id="fb13"></div>
+      </div>
+
+      <div class="question-block" id="q14">
+        <div class="question-type-label">True / False</div>
+        <div class="question-text">Before graphing inequalities, you must make sure the equation is in y = mx + b form.</div>
+        <div class="tf-row">
+          <button class="tf-btn true-btn" onclick="checkTF(this,true,14)">True</button>
+          <button class="tf-btn false-btn" onclick="checkTF(this,false,14)">False</button>
+        </div>
+        <div class="feedback-msg" id="fb14"></div>
+      </div>
+
+      <div class="question-block" id="q15">
+        <div class="question-type-label">Multiple Choice</div>
+        <div class="question-text">To check your solution to a system, you should:</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="checkMC(this,'A',15)">A) Graph it again</button>
+          <button class="choice-btn" onclick="checkMC(this,'B',15)">B) Plug it into one equation</button>
+          <button class="choice-btn" onclick="checkMC(this,'C',15)">C) Plug it into BOTH equations</button>
+          <button class="choice-btn" onclick="checkMC(this,'D',15)">D) Multiply the answers</button>
+        </div>
+        <div class="feedback-msg" id="fb15"></div>
+      </div>
+
+    </div>
+    <div class="quiz-results" id="quizResults">
+      <div class="result-score" id="finalScore"></div>
+      <div class="result-label">out of 15</div>
+      <div class="result-msg" id="resultMsg"></div>
+      <button class="restart-btn" onclick="restartQuiz()">Try Again</button>
+    </div>
+    <div class="quiz-nav" id="quizNav">
+      <button class="nav-btn" id="prevBtn" onclick="navQuiz(-1)" disabled>← Prev</button>
+      <div class="score-display" id="scoreTally">Score: 0</div>
+      <button class="nav-btn" id="nextBtn" onclick="navQuiz(1)">Next →</button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div class="section-header"><h2>Systems Blitz 🎮</h2><div class="bar"></div></div>
+  <div class="game-container">
+    <h3>Chapter 6 Sprint <span class="level-badge" id="levelBadge">Level 1</span></h3>
+    <p class="game-subtitle">10 seconds per question. Build your streak for bonus points!</p>
+    <div class="game-stats">
+      <div class="stat-box"><div class="stat-num" id="gScore">0</div><div class="stat-label">Score</div></div>
+      <div class="stat-box"><div class="stat-num" id="gStreak">0</div><div class="stat-label">🔥 Streak</div></div>
+      <div class="stat-box"><div class="stat-num" id="gCorrect">0</div><div class="stat-label">Correct</div></div>
+      <div class="stat-box"><div class="stat-num" id="gQ">0</div><div class="stat-label">Done</div></div>
+    </div>
+    <div class="timer-bar-wrap"><div class="timer-bar" id="timerBar" style="width:100%"></div></div>
+    <div class="game-board" id="gameBoard">
+      <div style="text-align:center;padding:20px 0;">
+        <p style="color:#ccc;font-size:15px;margin-bottom:20px;">Test your systems of equations skills!</p>
+        <button class="play-again-btn" onclick="startGame()" style="font-size:16px;padding:16px 40px;">Start Game 🚀</button>
+      </div>
+    </div>
+    <div class="game-feedback" id="gameFeedback"></div>
+    <div class="game-over-panel" id="gameOverPanel">
+      <div class="game-over-score" id="goScore"></div>
+      <div class="game-over-msg" id="goMsg"></div>
+      <button class="play-again-btn" onclick="startGame()">Play Again 🔄</button>
+    </div>
+  </div>
+  <p class="footer-note">Snohomish Panthers &nbsp;·&nbsp; Math 3 &nbsp;·&nbsp; Chapter 6</p>
+</div>
+
+<script>
+let currentQ=1,totalQ=15,quizScore=0,answered=new Array(16).fill(false);
+const mcAnswers={1:'B',3:'C',4:'B',6:'B',9:'B',11:'B',12:'B',15:'C'};
+const tfAnswers={2:true,5:true,8:true,10:true,14:true};
+
+function checkMC(btn,choice,qNum){
+  if(answered[qNum])return;answered[qNum]=true;
+  const btns=btn.closest('.choices').querySelectorAll('.choice-btn');btns.forEach(b=>b.disabled=true);
+  const fb=document.getElementById('fb'+qNum);
+  if(choice===mcAnswers[qNum]){btn.classList.add('correct');quizScore++;showFB(fb,true,'✅ Correct!');}
+  else{btn.classList.add('wrong');const cb=[...btns].find(b=>b.textContent.startsWith(mcAnswers[qNum]));if(cb)cb.classList.add('correct');showFB(fb,false,'❌ Not quite — check the notes!');}
+  updateScore();
+}
+function checkTF(btn,isTrue,qNum){
+  if(answered[qNum])return;answered[qNum]=true;
+  const btns=btn.closest('.tf-row').querySelectorAll('.tf-btn');btns.forEach(b=>b.disabled=true);
+  const correct=tfAnswers[qNum];const userTrue=btn.classList.contains('true-btn');
+  const fb=document.getElementById('fb'+qNum);
+  if(userTrue===correct){btn.classList.add('correct');quizScore++;showFB(fb,true,'✅ Correct!');}
+  else{btn.classList.add('wrong');const cb=correct?btn.closest('.tf-row').querySelector('.true-btn'):btn.closest('.tf-row').querySelector('.false-btn');if(cb)cb.classList.add('correct');showFB(fb,false,'❌ Not quite — check the notes!');}
+  updateScore();
+}
+function checkFill(inputId,accepted,qNum){
+  if(answered[qNum])return;answered[qNum]=true;
+  const input=document.getElementById(inputId);const val=input.value.trim().replace(/\s+/g,'').toLowerCase();
+  const ok=accepted.map(a=>a.replace(/\s+/g,'').toLowerCase()).includes(val);
+  const fb=document.getElementById('fb'+qNum);input.disabled=true;
+  if(ok){input.classList.add('correct');quizScore++;showFB(fb,true,'✅ Correct!');}
+  else{input.classList.add('wrong');showFB(fb,false,'❌ Answer: '+accepted[0]);}
+  updateScore();
+}
+function showFB(el,good,msg){el.textContent=msg;el.className='feedback-msg show '+(good?'good':'bad');}
+function updateScore(){document.getElementById('scoreTally').textContent='Score: '+quizScore;}
+function navQuiz(dir){
+  document.getElementById('q'+currentQ).classList.remove('active');currentQ=Math.max(1,Math.min(totalQ,currentQ+dir));
+  document.getElementById('q'+currentQ).classList.add('active');
+  document.getElementById('qProgress').textContent='Question '+currentQ+' of '+totalQ;
+  document.getElementById('qBar').style.width=((currentQ/totalQ)*100)+'%';
+  document.getElementById('prevBtn').disabled=currentQ===1;
+  const nb=document.getElementById('nextBtn');
+  if(currentQ===totalQ){nb.textContent='Finish';nb.onclick=()=>showResults();}else{nb.textContent='Next →';nb.onclick=()=>navQuiz(1);}
+}
+function showResults(){
+  document.getElementById('quizMain').style.display='none';document.getElementById('quizNav').style.display='none';
+  document.getElementById('quizResults').classList.add('show');document.getElementById('finalScore').textContent=quizScore;
+  const pct=Math.round((quizScore/totalQ)*100);
+  document.getElementById('resultMsg').textContent=pct>=90?'🏆 Chapter 6 mastered!':pct>=70?'💪 Good work!':'📚 Review and try again!';
+  try{localStorage.setItem('math3_ch6',JSON.stringify({score:quizScore,total:totalQ,done:true}));}catch(e){}
+}
+function restartQuiz(){
+  currentQ=1;quizScore=0;answered=new Array(16).fill(false);
+  document.getElementById('quizMain').style.display='';document.getElementById('quizNav').style.display='';
+  document.getElementById('quizResults').classList.remove('show');
+  for(let i=1;i<=totalQ;i++){const b=document.getElementById('q'+i);b.classList.remove('active');b.querySelectorAll('button').forEach(x=>{x.disabled=false;x.className=x.className.replace(/correct|wrong/g,'').trim();});b.querySelectorAll('input').forEach(x=>{x.disabled=false;x.value='';x.className='fill-input';});const fb=document.getElementById('fb'+i);if(fb)fb.className='feedback-msg';}
+  document.getElementById('q1').classList.add('active');document.getElementById('qProgress').textContent='Question 1 of 15';
+  document.getElementById('qBar').style.width='6.67%';document.getElementById('prevBtn').disabled=true;
+  document.getElementById('nextBtn').textContent='Next →';document.getElementById('nextBtn').onclick=()=>navQuiz(1);updateScore();
+}
+
+let gScore=0,gStreak=0,gCorrect=0,gQCount=0,gTimer=null,gTimeLeft=10,gAnswered=false,gameQueue=[],currentGame=null;
+const MAX_Q=20;
+const gameBank=[
+  {q:'How many methods solve a system?',a:'3',opts:['3','2','4','1']},
+  {q:'The solution to a system is where lines:',a:'cross',opts:['cross','are parallel','are perpendicular','start']},
+  {q:'Parallel lines have ___ solution(s)',a:'no solution',opts:['no solution','1 solution','2 solutions','infinite']},
+  {q:'Substitution: get one variable ___ by itself',a:'alone',opts:['alone','multiplied','divided','squared']},
+  {q:'After finding x, you must find:',a:'y',opts:['y','the slope','the intercept','the domain']},
+  {q:'Elimination: add equations to ___ a variable',a:'eliminate',opts:['eliminate','double','square','graph']},
+  {q:'Dashed line = which inequality sign?',a:'< or >',opts:['< or >','≤ or ≥','= sign','no sign']},
+  {q:'Solid line = which inequality sign?',a:'≤ or ≥',opts:['≤ or ≥','< or >','= sign','+ sign']},
+  {q:'Test point for shading is always:',a:'(0,0)',opts:['(0,0)','(1,1)','(2,2)','(−1,−1)']},
+  {q:'(0,0) test is TRUE → shade where (0,0):',a:'is',opts:['is','is not','neither','both']},
+  {q:'(0,0) test is FALSE → shade where (0,0):',a:'is not',opts:['is not','is','the line','everywhere']},
+  {q:'Systems of inequalities: shade where both:',a:'overlap',opts:['overlap','diverge','are parallel','are equal']},
+  {q:'Check a system solution by plugging into:',a:'both equations',opts:['both equations','one equation','the graph','neither']},
+  {q:'y = 3x and x+y=−32. Substitute → 4x=?',a:'−32',opts:['−32','32','−8','8']},
+  {q:'5x−6y=−32 + 3x+6y=48 → 8x=?',a:'16',opts:['16','−16','80','−80']},
+  {q:'Solution written as:',a:'(x, y)',opts:['(x, y)','x and y','x=y','xy']},
+  {q:'Before graphing inequality: put in ___ form',a:'y=mx+b',opts:['y=mx+b','Ax+By=C','standard','point-slope']},
+  {q:'Two equations with same slope are:',a:'parallel',opts:['parallel','perpendicular','intersecting','equal']},
+  {q:'In elimination, multiply by −1 to:',a:'flip signs',opts:['flip signs','double values','square','add']},
+  {q:'Systems of inequalities solution is:',a:'the overlap region',opts:['the overlap region','one point','a line','empty']},
+];
+function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
+function startGame(){gScore=0;gStreak=0;gCorrect=0;gQCount=0;gameQueue=shuffle(gameBank);document.getElementById('gameOverPanel').classList.remove('show');document.getElementById('gameFeedback').className='game-feedback';updateGStats();nextGQ();}
+function nextGQ(){if(gQCount>=MAX_Q){endGame();return;}gAnswered=false;currentGame=gameQueue[gQCount%gameQueue.length];gQCount++;const lvl=gStreak>=10?'🔥 On Fire':gStreak>=5?'Expert':gStreak>=3?'Pro':'Level 1';document.getElementById('levelBadge').textContent=lvl;const opts=shuffle(currentGame.opts);let html=`<div class="game-question">${currentGame.q}</div><div class="game-choices">`;opts.forEach(o=>{html+=`<button class="game-choice" onclick="answerG(this,${JSON.stringify(o)})">${o}</button>`;});html+='</div>';document.getElementById('gameBoard').innerHTML=html;startTimer();}
+function answerG(btn,choice){if(gAnswered)return;gAnswered=true;clearInterval(gTimer);const btns=document.querySelectorAll('.game-choice');btns.forEach(b=>b.disabled=true);const fb=document.getElementById('gameFeedback');if(choice===currentGame.a){btn.classList.add('correct');gStreak++;gCorrect++;const bonus=gStreak>=5?2:1;gScore+=10*bonus;fb.textContent=gStreak>=5?`🔥 +${10*bonus} — Streak x${gStreak}!`:'✅ Correct! +10';fb.className='game-feedback show good';}else{btn.classList.add('wrong');const cb=[...btns].find(b=>b.textContent===currentGame.a);if(cb)cb.classList.add('correct');gStreak=0;fb.textContent='❌ Answer: '+currentGame.a;fb.className='game-feedback show bad';}updateGStats();setTimeout(nextGQ,1300);}
+function startTimer(){gTimeLeft=10;document.getElementById('timerBar').style.width='100%';clearInterval(gTimer);gTimer=setInterval(()=>{gTimeLeft-=0.1;document.getElementById('timerBar').style.width=Math.max(0,(gTimeLeft/10)*100)+'%';if(gTimeLeft<=0){clearInterval(gTimer);if(!gAnswered){gAnswered=true;gStreak=0;document.querySelectorAll('.game-choice').forEach(b=>b.disabled=true);const fb=document.getElementById('gameFeedback');fb.textContent='⏱️ Time\'s up! Answer: '+currentGame.a;fb.className='game-feedback show bad';updateGStats();setTimeout(nextGQ,1300);}}},100);}
+function updateGStats(){document.getElementById('gScore').textContent=gScore;document.getElementById('gStreak').textContent=gStreak;document.getElementById('gCorrect').textContent=gCorrect;document.getElementById('gQ').textContent=gQCount;}
+function endGame(){clearInterval(gTimer);document.getElementById('gameBoard').innerHTML='';document.getElementById('gameFeedback').className='game-feedback';document.getElementById('gameOverPanel').classList.add('show');document.getElementById('goScore').textContent=gScore+' pts';const pct=Math.round((gCorrect/MAX_Q)*100);document.getElementById('goMsg').textContent=(pct>=90?'🏆 Panther Legend!':pct>=70?'💪 Solid work!':'📚 Keep practicing!')+` (${gCorrect}/${MAX_Q} correct)`;}
+</script>
+</body>
+</html>
